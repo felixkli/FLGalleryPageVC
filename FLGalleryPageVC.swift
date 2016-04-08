@@ -56,10 +56,16 @@ public class FLGalleryPageVC: UIViewController {
         
         view.backgroundColor = UIColor.whiteColor()
         
-        let bundle = NSBundle(path: NSBundle.mainBundle().pathForResource("Media", ofType: "bundle")!)
-        let exitImage = UIImage(named: "close-icon", inBundle: bundle, compatibleWithTraitCollection: nil)
+        if let path = NSBundle.mainBundle().pathForResource("FLGalleryPageVC", ofType: "bundle"){
+            print("path: \(path)")
+            let bundle = NSBundle(path: path)
+            print("bundle: \(bundle)")
+            
+            let exitImage = UIImage(named: "close-icon", inBundle: bundle, compatibleWithTraitCollection: nil)
+            
+            exitButton.setImage(exitImage, forState: .Normal)
+        }
         
-        exitButton.setImage(exitImage, forState: .Normal)
         exitButton.setTitle("", forState: .Normal)
         exitButton.addTarget(self, action: #selector(FLGalleryPageVC.donePressed), forControlEvents: .TouchUpInside)
         exitButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
