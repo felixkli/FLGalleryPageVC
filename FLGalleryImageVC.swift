@@ -7,7 +7,7 @@
 
 import Foundation
 
-class FLGalleryImageVC: GAITrackedViewController {
+class FLGalleryImageVC: UIViewController {
     
     let imageView = UIImageView()
     let scrollView = UIScrollView()
@@ -23,11 +23,11 @@ class FLGalleryImageVC: GAITrackedViewController {
         self.index = index
         self.imageURL = imageURL
     }
-
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -48,7 +48,7 @@ class FLGalleryImageVC: GAITrackedViewController {
         view.backgroundColor = UIColor.clearColor()
         scrollView.backgroundColor = UIColor.clearColor()
         imageView.backgroundColor = UIColor.clearColor()
-
+        
         centerScrollContent()
     }
     
@@ -65,14 +65,14 @@ class FLGalleryImageVC: GAITrackedViewController {
         scrollView.maximumZoomScale=3.0;
         scrollView.delegate=self;
         scrollView.clipsToBounds = true;
-
+        
         view.addSubview(scrollView)
     }
     
     func setupImageCropper(){
         
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(_:)))
-
+        
         doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(_:)))
         doubleTap.numberOfTapsRequired = 2
         
@@ -81,7 +81,7 @@ class FLGalleryImageVC: GAITrackedViewController {
         imageView.backgroundColor = UIColor.blackColor()
         imageView.addGestureRecognizer(longPressRecognizer)
         imageView.addGestureRecognizer(doubleTap)
-
+        
         scrollView.addSubview(imageView)
     }
     
@@ -139,18 +139,18 @@ class FLGalleryImageVC: GAITrackedViewController {
     func image(image: UIImage, didFinishSavingWithError error: NSError?, contextInfo:UnsafePointer<Void>) {
         
         if error == nil {
-
+            
             let ac = UIAlertController(title: "Success!", message: "Image has been saved.", preferredStyle: .Alert)
             presentViewController(ac, animated: true, completion: nil)
             
             let delayTime = dispatch_time(DISPATCH_TIME_NOW,
-                Int64(1.5 * Double(NSEC_PER_SEC)))
+                                          Int64(1.5 * Double(NSEC_PER_SEC)))
             dispatch_after(delayTime, dispatch_get_main_queue()) {
                 ac.dismissViewControllerAnimated(true, completion: nil)
             }
             
         } else {
-
+            
             let ac = UIAlertController(title: "Save error", message: error?.localizedDescription, preferredStyle: .Alert)
             ac.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
             presentViewController(ac, animated: true, completion: nil)
@@ -185,13 +185,13 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
     func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
         return self.imageView
     }
-
+    
     func scrollViewDidZoom(scrollView: UIScrollView) {
         self.centerScrollContent()
     }
     
     func centerScrollContent(){
-
+        
         let screenSize = scrollView.bounds.size
         let boundsSize = CGSizeMake(screenSize.width, screenSize.height )
         
