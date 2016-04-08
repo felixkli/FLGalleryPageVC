@@ -10,5 +10,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = "8.0"
   s.source       = { :git => "https://github.com/felixkli/FLGalleryPageVC.git", :tag => "0.0.3" }
   s.source_files = 'FLGalleryPageVC.swift', 'FLGalleryImageVC.swift'
+  s.dependency 'SDWebImage', '3.7.5'
   s.resources             = "Resources/*.xcassets"
 end
