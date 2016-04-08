@@ -1,5 +1,5 @@
 //
-//  GalleryPageVC.swift
+//  FLGalleryPageVC.swift
 //  hypebeast
 //
 //  Created by Felix Li on 31/7/15.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class GalleryPageVC: UIViewController {
+class FLGalleryPageVC: UIViewController {
     
     private let pageControl =  UIPageControl()
     private let exitButton = UIButton(type: UIButtonType.Custom)
@@ -131,7 +131,7 @@ class GalleryPageVC: UIViewController {
     
     private func viewControllerForIndex(index: Int) -> UIViewController{
         
-        return GalleryImageVC(index: index, imageURL: imageLinks[index])
+        return FLGalleryImageVC(index: index, imageURL: imageLinks[index])
     }
 
     func donePressed(){
@@ -141,7 +141,7 @@ class GalleryPageVC: UIViewController {
 }
 
 // MARK: UIPageViewControllerDataSource
-extension GalleryPageVC: UIPageViewControllerDataSource{
+extension FLGalleryPageVC: UIPageViewControllerDataSource{
     
     func pageViewController(pageViewController: UIPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController?{
         
@@ -165,7 +165,7 @@ extension GalleryPageVC: UIPageViewControllerDataSource{
     
     func pageViewController(pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         
-        if let vc = pageViewController.viewControllers!.first as? GalleryImageVC{
+        if let vc = pageViewController.viewControllers!.first as? FLGalleryImageVC{
         
             if vc.index != currentPage{
                 currentPage = vc.index
@@ -175,11 +175,11 @@ extension GalleryPageVC: UIPageViewControllerDataSource{
 }
 
 // MARK: UIPageViewControllerDelegate
-extension GalleryPageVC: UIPageViewControllerDelegate{
+extension FLGalleryPageVC: UIPageViewControllerDelegate{
     
     func pageViewController(pageViewController: UIPageViewController, willTransitionToViewControllers pendingViewControllers: [UIViewController]) {
         
-        if let vc = pendingViewControllers.first as? GalleryImageVC{
+        if let vc = pendingViewControllers.first as? FLGalleryImageVC{
             
             if vc.index != currentPage{
                 currentPage = vc.index

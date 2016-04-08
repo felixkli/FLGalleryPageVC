@@ -1,5 +1,5 @@
 //
-//  GalleryImageVC.swift
+//  FLGalleryImageVC.swift
 //  hypebeast
 //
 //  Created by Felix Li on 31/7/15.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class GalleryImageVC: GAITrackedViewController {
+class FLGalleryImageVC: GAITrackedViewController {
     
     let imageView = UIImageView()
     let scrollView = UIScrollView()
@@ -71,9 +71,9 @@ class GalleryImageVC: GAITrackedViewController {
     
     func setupImageCropper(){
         
-        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(GalleryImageVC.imgsScrlViewLongPressed(_:)))
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(_:)))
 
-        doubleTap = UITapGestureRecognizer(target: self, action: #selector(GalleryImageVC.handleDoubleTap(_:)))
+        doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(_:)))
         doubleTap.numberOfTapsRequired = 2
         
         imageView.contentMode = UIViewContentMode.Center
@@ -181,7 +181,7 @@ class GalleryImageVC: GAITrackedViewController {
     }
 }
 
-extension GalleryImageVC: UIScrollViewDelegate{
+extension FLGalleryImageVC: UIScrollViewDelegate{
     func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
         return self.imageView
     }
