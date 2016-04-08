@@ -34,7 +34,7 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
-    init(currentIndex: Int, links: [String]){
+    public init(currentIndex: Int, links: [String]){
         
         super.init(nibName: nil, bundle: nil)
         
