@@ -16,6 +16,8 @@ public class FLGalleryPageVC: UIViewController {
     
     public var pageVC = UIPageViewController(transitionStyle: UIPageViewControllerTransitionStyle.Scroll, navigationOrientation: UIPageViewControllerNavigationOrientation.Horizontal, options: nil)
     
+    public var placeHolderImage: UIImage?
+    
     public private(set) var currentPage = 0{
         didSet{
             updatePageControl()
@@ -135,7 +137,10 @@ public class FLGalleryPageVC: UIViewController {
     
     private func viewControllerForIndex(index: Int) -> UIViewController{
         
-        return FLGalleryImageVC(index: index, imageURL: imageLinks[index])
+        let galleryImageVC = FLGalleryImageVC(index: index, imageURL: imageLinks[index])
+        galleryImageVC.placeHolderImage = self.placeHolderImage
+        
+        return galleryImageVC
     }
     
     func donePressed(){

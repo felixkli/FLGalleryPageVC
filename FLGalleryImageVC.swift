@@ -18,6 +18,10 @@ class FLGalleryImageVC: UIViewController {
     var doubleTap: UITapGestureRecognizer!
     var imageSize = CGSizeZero
     
+    var placeHolderImage: UIImage?
+    
+    var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
+    
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
         
@@ -45,6 +49,7 @@ class FLGalleryImageVC: UIViewController {
         
         imageView.frame.size = self.imageView.proportionalSizeToFitMaxSize(self.view.bounds.size)
         scrollView.contentSize = imageView.bounds.size
+        loadingIndicator.center = view.center
         
         view.backgroundColor = UIColor.clearColor()
         scrollView.backgroundColor = UIColor.clearColor()
@@ -84,13 +89,21 @@ class FLGalleryImageVC: UIViewController {
         imageView.addGestureRecognizer(doubleTap)
         
         scrollView.addSubview(imageView)
+        scrollView.addSubview(loadingIndicator)
     }
     
     func retrieveImage(){
         
+        if let _ = placeHolderImage{
+            
+        }else{
+            
+            loadingIndicator.startAnimating()
+        }
+        
         imageView.sd_setImageWithURL(
             NSURL(string: imageURL),
-            placeholderImage: UIImage(named: "reload"),
+            placeholderImage: placeHolderImage,
             completed: { (image, error, cacheType, url) in
                 
                 self.imageSize = self.imageView.proportionalSizeToFitMaxSize(self.view.bounds.size)
@@ -102,6 +115,8 @@ class FLGalleryImageVC: UIViewController {
                 UIView.animateWithDuration(0.3, animations: { () in
                     self.imageView.alpha = 1
                 })
+                
+                self.loadingIndicator.stopAnimating()
         })
     }
     
