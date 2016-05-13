@@ -96,6 +96,9 @@ class FLGalleryImageVC: UIViewController {
         
         if let _ = placeHolderImage{
             
+            self.scrollView.maximumZoomScale = 1.0
+            self.scrollView.minimumZoomScale = 1.0
+            
         }else{
             
             loadingIndicator.startAnimating()
@@ -117,6 +120,9 @@ class FLGalleryImageVC: UIViewController {
                 })
                 
                 self.loadingIndicator.stopAnimating()
+
+                self.scrollView.maximumZoomScale = 3.0
+                self.scrollView.minimumZoomScale = 1.0;
         })
     }
     
