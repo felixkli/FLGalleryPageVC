@@ -120,7 +120,7 @@ class FLGalleryImageVC: UIViewController {
                 })
                 
                 self.loadingIndicator.stopAnimating()
-
+                
                 self.scrollView.maximumZoomScale = 3.0
                 self.scrollView.minimumZoomScale = 1.0;
         })
@@ -205,7 +205,15 @@ class FLGalleryImageVC: UIViewController {
 
 extension FLGalleryImageVC: UIScrollViewDelegate{
     func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
-        return self.imageView
+        
+        if self.scrollView.maximumZoomScale == self.scrollView.minimumZoomScale{
+            
+            return nil
+            
+        }else{
+            
+            return self.imageView
+        }
     }
     
     func scrollViewDidZoom(scrollView: UIScrollView) {
