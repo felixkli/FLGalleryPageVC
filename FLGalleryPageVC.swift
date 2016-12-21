@@ -10,15 +10,15 @@ import Foundation
 public class FLGalleryPageVC: UIViewController {
     
     private let pageControl =  UIPageControl()
-    private let exitButton = UIButton(type: UIButtonType.Custom)
+    private let exitButton = UIButton(type: .custom)
     private let exitButtonSize: CGFloat = 50
     private let exitButtonPad: CGFloat = 20
     
-    public var pageVC = UIPageViewController(transitionStyle: UIPageViewControllerTransitionStyle.Scroll, navigationOrientation: UIPageViewControllerNavigationOrientation.Horizontal, options: nil)
+    public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
     public var placeHolderImage: UIImage?
     
-    public private(set) var currentPage = 0{
+    public fileprivate(set) var currentPage = 0{
         didSet{
             updatePageControl()
         }
@@ -32,7 +32,7 @@ public class FLGalleryPageVC: UIViewController {
     
     public var enablePageControl = false{
         didSet{
-            pageControl.hidden = !enablePageControl
+            pageControl.isHidden = !enablePageControl
         }
     }
     
@@ -40,8 +40,8 @@ public class FLGalleryPageVC: UIViewController {
         
         super.init(nibName: nil, bundle: nil)
         
-        modalTransitionStyle = .CrossDissolve
-        modalPresentationStyle = .OverFullScreen
+        modalTransitionStyle = .crossDissolve
+        modalPresentationStyle = .overFullScreen
         
         currentPage = currentIndex
         imageLinks = links
@@ -56,15 +56,14 @@ public class FLGalleryPageVC: UIViewController {
         
         modalPresentationCapturesStatusBarAppearance = true
         
-        view.backgroundColor = UIColor.whiteColor()
+        view.backgroundColor = UIColor.white
         
-        let exitImage = UIImage(named: "close-icon", inBundle: NSBundle(forClass: FLGalleryPageVC.self), compatibleWithTraitCollection: nil)
-        print("exitImage: \(exitImage)")
+        let exitImage = UIImage(named: "close-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)
         
-        exitButton.setImage(exitImage, forState: .Normal)
+        exitButton.setImage(exitImage, for: .normal)
         
-        exitButton.setTitle("", forState: .Normal)
-        exitButton.addTarget(self, action: #selector(FLGalleryPageVC.donePressed), forControlEvents: .TouchUpInside)
+        exitButton.setTitle("", for: .normal)
+        exitButton.addTarget(self, action: #selector(FLGalleryPageVC.donePressed), for: .touchUpInside)
         exitButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
         exitButton.layer.cornerRadius = exitButtonSize / 2
         exitButton.backgroundColor = UIColor(white: 1, alpha: 0.2)
@@ -83,22 +82,25 @@ public class FLGalleryPageVC: UIViewController {
         view.addSubview(exitButton)
     }
     
-    public override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return UIStatusBarAnimation.Slide
+    public override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation{
+        
+        return .slide
     }
     
-    public override func prefersStatusBarHidden() -> Bool {
+    public override var prefersStatusBarHidden: Bool{
+        
         return true
     }
+    
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        exitButton.frame = CGRectMake(view.bounds.width - exitButtonSize - exitButtonPad + 10, 14, exitButtonSize, exitButtonSize)
+        exitButton.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad + 10, y: 14, width: exitButtonSize, height: exitButtonSize)
         pageVC.view.frame = view.bounds
         
         let pageControlWidth = CGFloat(pageControl.numberOfPages) * 20
-        pageControl.frame = CGRectMake((view.bounds.width - pageControlWidth) / 2, view.bounds.height - 50, pageControlWidth, 20)
+        pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
     }
     
     public func isModal() -> Bool{
@@ -113,11 +115,13 @@ public class FLGalleryPageVC: UIViewController {
         currentPage = page
         
         updatePageControl()
-        dispatch_async(dispatch_get_main_queue(),{
+        
+        DispatchQueue.main.async {
             
-            let vc = self.viewControllerForIndex(self.currentPage)
-            self.pageVC.setViewControllers([vc], direction: .Forward, animated: false, completion: nil)
-        })
+            let vc = self.viewControllerForIndex(index: self.currentPage)
+            self.pageVC.setViewControllers([vc], direction: .forward, animated: false, completion: nil)
+            
+        }
     }
     
     private func updatePageControl(){
@@ -128,14 +132,14 @@ public class FLGalleryPageVC: UIViewController {
     
     private func setupPageViewController(){
         
-        pageVC.view.backgroundColor = UIColor.whiteColor()
+        pageVC.view.backgroundColor = UIColor.white
         pageVC.delegate = self
         pageVC.dataSource = self
         
         view.addSubview(pageVC.view)
     }
     
-    private func viewControllerForIndex(index: Int) -> UIViewController{
+    fileprivate func viewControllerForIndex(index: Int) -> UIViewController{
         
         let galleryImageVC = FLGalleryImageVC(index: index, imageURL: imageLinks[index])
         galleryImageVC.placeHolderImage = self.placeHolderImage
@@ -145,39 +149,39 @@ public class FLGalleryPageVC: UIViewController {
     
     func donePressed(){
         
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
 // MARK: UIPageViewControllerDataSource
 extension FLGalleryPageVC: UIPageViewControllerDataSource{
     
-    public func pageViewController(pageViewController: UIPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController?{
+    public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         
         if (currentPage == 0){
             return nil
             
         }else{
-            return viewControllerForIndex(currentPage - 1)
+            return self.viewControllerForIndex(index: currentPage - 1)
         }
     }
     
-    public func pageViewController(pageViewController: UIPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController?{
+    public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         
         if (currentPage == imageLinks.count - 1){
             return nil
             
         }else{
-            return viewControllerForIndex(currentPage + 1)
+            return self.viewControllerForIndex(index: currentPage + 1)
         }
     }
     
-    public func pageViewController(pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+    public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         
         if let vc = pageViewController.viewControllers!.first as? FLGalleryImageVC{
             
             if vc.index != currentPage{
-                currentPage = vc.index
+                self.currentPage = vc.index
             }
         }
     }
@@ -186,12 +190,12 @@ extension FLGalleryPageVC: UIPageViewControllerDataSource{
 // MARK: UIPageViewControllerDelegate
 extension FLGalleryPageVC: UIPageViewControllerDelegate{
     
-    public func pageViewController(pageViewController: UIPageViewController, willTransitionToViewControllers pendingViewControllers: [UIViewController]) {
+    public func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
         
         if let vc = pendingViewControllers.first as? FLGalleryImageVC{
             
             if vc.index != currentPage{
-                currentPage = vc.index
+                self.currentPage = vc.index
             }
         }
     }

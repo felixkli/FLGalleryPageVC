@@ -16,11 +16,11 @@ class FLGalleryImageVC: UIViewController {
     var index: Int!
     var imageURL: String!
     var doubleTap: UITapGestureRecognizer!
-    var imageSize = CGSizeZero
+    var imageSize = CGSize.zero
     
     var placeHolderImage: UIImage?
     
-    var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
+    var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
@@ -47,19 +47,18 @@ class FLGalleryImageVC: UIViewController {
         scrollView.zoomScale = 0.0;
         scrollView.frame = view.bounds
         
-        imageView.frame.size = self.imageView.proportionalSizeToFitMaxSize(self.view.bounds.size)
+        imageView.frame.size = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size)
         scrollView.contentSize = imageView.bounds.size
         loadingIndicator.center = view.center
         
-        view.backgroundColor = UIColor.clearColor()
-        scrollView.backgroundColor = UIColor.clearColor()
-        imageView.backgroundColor = UIColor.clearColor()
+        view.backgroundColor = UIColor.clear
+        scrollView.backgroundColor = UIColor.clear
+        imageView.backgroundColor = UIColor.clear
         
         centerScrollContent()
     }
     
-    override func viewDidDisappear(animated: Bool) {
-        
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         scrollView.zoomScale = 0.0;
@@ -77,14 +76,16 @@ class FLGalleryImageVC: UIViewController {
     
     func setupImageCropper(){
         
-        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(_:)))
         
-        doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(_:)))
+        
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(sender:)))
+        
+        doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(sender:)))
         doubleTap.numberOfTapsRequired = 2
         
-        imageView.contentMode = UIViewContentMode.Center
-        imageView.userInteractionEnabled = true
-        imageView.backgroundColor = UIColor.blackColor()
+        imageView.contentMode = UIViewContentMode.center
+        imageView.isUserInteractionEnabled = true
+        imageView.backgroundColor = UIColor.black
         imageView.addGestureRecognizer(longPressRecognizer)
         imageView.addGestureRecognizer(doubleTap)
         
@@ -104,57 +105,55 @@ class FLGalleryImageVC: UIViewController {
             loadingIndicator.startAnimating()
         }
         
-        imageView.sd_setImageWithURL(
-            NSURL(string: imageURL),
-            placeholderImage: placeHolderImage,
-            completed: { (image, error, cacheType, url) in
+        self.imageView.sd_setImage(with: URL(string: imageURL), placeholderImage: placeHolderImage, options: [], progress: nil) { (image, error, cacheType, url) in
+            
+            self.imageSize = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size)
+            self.imageView.frame.size = self.imageSize
+            self.imageView.contentMode = UIViewContentMode.scaleAspectFit
+            self.centerScrollContent()
+            
+            self.imageView.alpha = 0
+            UIView.animate(withDuration: 0.3, animations: {
                 
-                self.imageSize = self.imageView.proportionalSizeToFitMaxSize(self.view.bounds.size)
-                self.imageView.frame.size = self.imageSize
-                self.imageView.contentMode = UIViewContentMode.ScaleAspectFit
-                self.centerScrollContent()
-                
-                self.imageView.alpha = 0
-                UIView.animateWithDuration(0.3, animations: { () in
-                    self.imageView.alpha = 1
-                })
-                
-                self.loadingIndicator.stopAnimating()
-                
-                self.scrollView.maximumZoomScale = 3.0
-                self.scrollView.minimumZoomScale = 1.0;
-        })
+                self.imageView.alpha = 1
+            })
+            
+            self.loadingIndicator.stopAnimating()
+            
+            self.scrollView.maximumZoomScale = 3.0
+            self.scrollView.minimumZoomScale = 1.0;
+        }
     }
     
     func imgsScrlViewLongPressed(sender: UILongPressGestureRecognizer)
     {
         print("longpressed")
-        if (sender.state == UIGestureRecognizerState.Ended) {
+        if (sender.state == UIGestureRecognizerState.ended) {
             print("Long press Ended");
             
-        } else if (sender.state == UIGestureRecognizerState.Began) {
+        } else if (sender.state == UIGestureRecognizerState.began) {
             print("Long press detected.");
             
             let imgView: UIImageView = sender.view as! UIImageView
-            let saveImgAS = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+            let saveImgAS = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
             
-            saveImgAS.addAction(UIAlertAction(title: "Save Image", style: .Default, handler: { (action) in
+            saveImgAS.addAction(UIAlertAction(title: "Save Image", style: .default, handler: { (action) in
                 
                 // Save image here
-                UIImageWriteToSavedPhotosAlbum(imgView.image!, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
+                UIImageWriteToSavedPhotosAlbum(imgView.image!, self, #selector(self.image(image:didFinishSavingWithError:contextInfo:)), nil)
             }))
             
-            saveImgAS.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
+            saveImgAS.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             
             if let popoverController = saveImgAS.popoverPresentationController {
                 
-                let point = sender.locationInView(imgView)
+                let point = sender.location(in: imgView)
                 
                 popoverController.sourceView = sender.view
-                popoverController.sourceRect = CGRectMake(point.x + 30, point.y, 1, 1)
+                popoverController.sourceRect = CGRect(x: point.x + 30, y: point.y, width: 1, height: 1)
             }
             
-            self.presentViewController(saveImgAS, animated: true, completion: nil)
+            self.present(saveImgAS, animated: true, completion: nil)
         }
     }
     
@@ -162,20 +161,20 @@ class FLGalleryImageVC: UIViewController {
         
         if error == nil {
             
-            let ac = UIAlertController(title: "Success!", message: "Image has been saved.", preferredStyle: .Alert)
-            presentViewController(ac, animated: true, completion: nil)
+            let ac = UIAlertController(title: "Success!", message: "Image has been saved.", preferredStyle: .alert)
+            present(ac, animated: true, completion: nil)
             
-            let delayTime = dispatch_time(DISPATCH_TIME_NOW,
-                                          Int64(1.5 * Double(NSEC_PER_SEC)))
-            dispatch_after(delayTime, dispatch_get_main_queue()) {
-                ac.dismissViewControllerAnimated(true, completion: nil)
-            }
+            let delayTime = DispatchTime.now() + 1.5
+            DispatchQueue.main.asyncAfter(deadline: delayTime, execute: {
+                
+                ac.dismiss(animated: true, completion: nil)
+            })
             
         } else {
             
-            let ac = UIAlertController(title: "Save error", message: error?.localizedDescription, preferredStyle: .Alert)
-            ac.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
-            presentViewController(ac, animated: true, completion: nil)
+            let ac = UIAlertController(title: "Save error", message: error?.localizedDescription, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(ac, animated: true, completion: nil)
         }
     }
     
@@ -184,7 +183,8 @@ class FLGalleryImageVC: UIViewController {
         if scrollView.zoomScale >= 2{
             scrollView.setZoomScale(0.0, animated: true)
         }else{
-            let  pointInView = sender.locationInView(self.imageView)
+            
+            let pointInView = sender.location(in: self.imageView)
             
             var newZoomScale = self.scrollView.zoomScale * 2
             newZoomScale = min(newZoomScale, self.scrollView.maximumZoomScale);
@@ -196,15 +196,16 @@ class FLGalleryImageVC: UIViewController {
             let x = pointInView.x - (w / 2.0);
             let y = pointInView.y - (h / 2.0);
             
-            let rectToZoomTo = CGRectMake(x, y, w, h);
+            let rectToZoomTo = CGRect(x: x, y: y, width: w, height: h);
             
-            self.scrollView.zoomToRect(rectToZoomTo, animated: true)
+            self.scrollView.zoom(to: rectToZoomTo, animated: true)
         }
     }
 }
 
 extension FLGalleryImageVC: UIScrollViewDelegate{
-    func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+    
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         
         if self.scrollView.maximumZoomScale == self.scrollView.minimumZoomScale{
             
@@ -216,14 +217,15 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
         }
     }
     
-    func scrollViewDidZoom(scrollView: UIScrollView) {
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        
         self.centerScrollContent()
     }
     
     func centerScrollContent(){
         
         let screenSize = scrollView.bounds.size
-        let boundsSize = CGSizeMake(screenSize.width, screenSize.height )
+        let boundsSize = CGSize(width: screenSize.width, height: screenSize.height )
         
         var contentsFrame = self.imageView.frame
         
@@ -247,7 +249,7 @@ extension UIImageView{
     
     func proportionalSizeToFitMaxSize(maxSize: CGSize) -> CGSize{
         
-        var proportionalSize = CGSizeZero
+        var proportionalSize = CGSize.zero
         
         if let image = self.image{
             
@@ -267,7 +269,7 @@ extension UIImageView{
                 height = image.size.height/image.size.width * width
             }
             
-            proportionalSize = CGSizeMake(width, height)
+            proportionalSize = CGSize(width: width, height: height)
         }
         
         return proportionalSize
