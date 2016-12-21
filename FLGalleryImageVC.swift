@@ -140,7 +140,7 @@ class FLGalleryImageVC: UIViewController {
             saveImgAS.addAction(UIAlertAction(title: "Save Image", style: .default, handler: { (action) in
                 
                 // Save image here
-                UIImageWriteToSavedPhotosAlbum(imgView.image!, self, #selector(self.image(image:didFinishSavingWithError:contextInfo:)), nil)
+                UIImageWriteToSavedPhotosAlbum(imgView.image!, self, #selector(image(image:didFinishSavingWithError:contextInfo:)), nil)
             }))
             
             saveImgAS.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -157,7 +157,7 @@ class FLGalleryImageVC: UIViewController {
         }
     }
     
-    func image(image: UIImage, didFinishSavingWithError error: NSError?, contextInfo:UnsafePointer<Void>) {
+    func image(image: UIImage, didFinishSavingWithError error: NSError?, contextInfo:UnsafeRawPointer) {
         
         if error == nil {
             
