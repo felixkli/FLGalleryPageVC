@@ -14,6 +14,8 @@ public class FLGalleryPageVC: UIViewController {
     private let exitButtonSize: CGFloat = 50
     private let exitButtonPad: CGFloat = 20
     
+    private var statusBarHidden = false
+    
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
     public var placeHolderImage: UIImage?
@@ -82,6 +84,26 @@ public class FLGalleryPageVC: UIViewController {
         view.addSubview(exitButton)
     }
     
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        self.statusBarHidden = true
+        
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
+    }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        self.statusBarHidden = false
+        
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
+    }
+    
     public override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation{
         
         return .slide
@@ -89,7 +111,7 @@ public class FLGalleryPageVC: UIViewController {
     
     public override var prefersStatusBarHidden: Bool{
         
-        return true
+        return statusBarHidden
     }
     
     
