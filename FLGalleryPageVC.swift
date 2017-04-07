@@ -19,6 +19,15 @@ public class FLGalleryPageVC: UIViewController {
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
     public var placeHolderImage: UIImage?
+    public var backgroundColor: UIColor = UIColor.white{
+        didSet{
+            
+            UIView.animate(withDuration: 0.3) {
+                
+                self.view.backgroundColor = self.backgroundColor
+            }
+        }
+    }
     
     public fileprivate(set) var currentPage = 0{
         didSet{
@@ -36,6 +45,15 @@ public class FLGalleryPageVC: UIViewController {
         didSet{
             pageControl.isHidden = !enablePageControl
         }
+    }
+    
+    // Hide bottom bar
+    public override var hidesBottomBarWhenPushed: Bool{
+        get{
+            
+            return true
+        }
+        set{ }
     }
     
     public init(currentIndex: Int, links: [String]){
@@ -58,7 +76,7 @@ public class FLGalleryPageVC: UIViewController {
         
         modalPresentationCapturesStatusBarAppearance = true
         
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = backgroundColor
         
         let exitImage = UIImage(named: "close-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)
         
@@ -82,6 +100,12 @@ public class FLGalleryPageVC: UIViewController {
         
         view.addSubview(pageControl)
         view.addSubview(exitButton)
+    }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
     public override func viewDidAppear(_ animated: Bool) {
@@ -142,8 +166,31 @@ public class FLGalleryPageVC: UIViewController {
             
             let vc = self.viewControllerForIndex(index: self.currentPage)
             self.pageVC.setViewControllers([vc], direction: .forward, animated: false, completion: nil)
-            
         }
+    }
+    
+    public func imageFrame(forPage page: Int) -> CGRect{
+        
+        if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
+            
+            vc.view.layoutIfNeeded()
+            
+            return vc.imageView.frame
+        }
+        
+        return view.bounds
+    }
+    
+    public func imageView(forPage page: Int) -> UIView{
+        
+        if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
+            
+            vc.view.layoutIfNeeded()
+            
+            return vc.imageView
+        }
+        
+        return self.view
     }
     
     private func updatePageControl(){
@@ -154,7 +201,7 @@ public class FLGalleryPageVC: UIViewController {
     
     private func setupPageViewController(){
         
-        pageVC.view.backgroundColor = UIColor.white
+        pageVC.view.backgroundColor = UIColor.clear
         pageVC.delegate = self
         pageVC.dataSource = self
         
@@ -172,6 +219,13 @@ public class FLGalleryPageVC: UIViewController {
     func donePressed(){
         
         self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    public override func willMove(toParentViewController parent: UIViewController?) {
+        super.willMove(toParentViewController: parent)
+        
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
 }
 
