@@ -148,12 +148,9 @@ class FLGalleryImageVC: UIViewController {
     
     func imgsScrlViewLongPressed(sender: UILongPressGestureRecognizer)
     {
-        print("longpressed")
         if (sender.state == UIGestureRecognizerState.ended) {
-            print("Long press Ended");
             
         } else if (sender.state == UIGestureRecognizerState.began) {
-            print("Long press detected.");
             
             let imgView: UIImageView = sender.view as! UIImageView
             let saveImgAS = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -253,13 +250,13 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
         if (contentsFrame.size.width < boundsSize.width) {
             contentsFrame.origin.x = (boundsSize.width - contentsFrame.size.width) / 2.0
         } else {
-            contentsFrame.origin.x = 0.0;
+            contentsFrame.origin.x = -imageOffset.x
         }
         
         if (contentsFrame.size.height < boundsSize.height) {
             contentsFrame.origin.y = (boundsSize.height - contentsFrame.size.height) / 2.0
         } else {
-            contentsFrame.origin.y = 0.0
+            contentsFrame.origin.y = -imageOffset.y
         }
         
         self.imageView.frame = CGRect(x: contentsFrame.origin.x + imageOffset.x, y: contentsFrame.origin.y + imageOffset.y, width: contentsFrame.width, height: contentsFrame.height)
