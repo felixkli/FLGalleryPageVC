@@ -18,7 +18,14 @@ public class FLGalleryPageVC: UIViewController {
     
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
-    public var placeHolderImage: UIImage?
+    public var placeHolderImage: UIImage? {
+        didSet{
+            
+            view.setNeedsLayout()
+            view.layoutIfNeeded()
+        }
+    }
+    
     public var backgroundColor: UIColor = UIColor.white{
         didSet{
             
@@ -55,6 +62,15 @@ public class FLGalleryPageVC: UIViewController {
         }
         set{ }
     }
+    
+    public var imageOffset = CGPoint(x: 0, y: 0) {
+        didSet{
+            
+            view.setNeedsLayout()
+            view.layoutIfNeeded()
+        }
+    }
+    
     
     public init(currentIndex: Int, links: [String]){
         
@@ -143,7 +159,9 @@ public class FLGalleryPageVC: UIViewController {
         super.viewDidLayoutSubviews()
         
         exitButton.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad + 10, y: 14, width: exitButtonSize, height: exitButtonSize)
+        //        pageVC.view.frame = CGRect(x: view.bounds.origin.x + imageOffset.x, y: view.bounds.origin.y + imageOffset.y, width: view.bounds.width, height: view.bounds.height)
         pageVC.view.frame = view.bounds
+        
         
         let pageControlWidth = CGFloat(pageControl.numberOfPages) * 20
         pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
@@ -211,7 +229,9 @@ public class FLGalleryPageVC: UIViewController {
     fileprivate func viewControllerForIndex(index: Int) -> UIViewController{
         
         let galleryImageVC = FLGalleryImageVC(index: index, imageURL: imageLinks[index])
+        
         galleryImageVC.placeHolderImage = self.placeHolderImage
+        galleryImageVC.imageOffset = self.imageOffset
         
         return galleryImageVC
     }

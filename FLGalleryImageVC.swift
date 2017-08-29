@@ -22,6 +22,15 @@ class FLGalleryImageVC: UIViewController {
     
     var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
+    public var imageOffset = CGPoint(x: 0, y: 0) {
+        didSet{
+            
+            view.setNeedsLayout()
+            view.layoutIfNeeded()
+        }
+    }
+    
+    
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
         
@@ -56,6 +65,12 @@ class FLGalleryImageVC: UIViewController {
         imageView.backgroundColor = UIColor.clear
         
         centerScrollContent()
+        
+        print("[gallery]")
+        print("[gallery] imageView: \(imageView.frame)")
+        print("[gallery] scrollView: \(scrollView.frame)")
+        print("[gallery] scrollView: \(scrollView.zoomScale)")
+        print("[gallery]")
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -70,13 +85,11 @@ class FLGalleryImageVC: UIViewController {
         scrollView.maximumZoomScale=3.0;
         scrollView.delegate=self;
         scrollView.clipsToBounds = true;
-        
+        scrollView.backgroundColor = UIColor.green
         view.addSubview(scrollView)
     }
     
     func setupImageCropper(){
-        
-        
         
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(sender:)))
         
@@ -85,7 +98,7 @@ class FLGalleryImageVC: UIViewController {
         
         imageView.contentMode = UIViewContentMode.center
         imageView.isUserInteractionEnabled = true
-        imageView.backgroundColor = UIColor.black
+        //        imageView.backgroundColor = UIColor.black
         imageView.addGestureRecognizer(longPressRecognizer)
         imageView.addGestureRecognizer(doubleTap)
         
@@ -97,8 +110,13 @@ class FLGalleryImageVC: UIViewController {
         
         if let _ = placeHolderImage{
             
-            self.scrollView.maximumZoomScale = 1.0
+            self.scrollView.maximumZoomScale = 3.0
             self.scrollView.minimumZoomScale = 1.0
+            
+            self.imageSize = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size, placeHolder: placeHolderImage)
+            self.imageView.frame.size = self.imageSize
+            self.imageView.contentMode = UIViewContentMode.scaleAspectFit
+            self.centerScrollContent()
             
         }else{
             
@@ -108,11 +126,18 @@ class FLGalleryImageVC: UIViewController {
         self.imageView.sd_setImage(with: URL(string: imageURL), placeholderImage: placeHolderImage, options: [], progress: nil) { (image, error, cacheType, url) in
             
             self.imageSize = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size)
+            //            self.imageView.frame.origin = self.imageOffset
             self.imageView.frame.size = self.imageSize
             self.imageView.contentMode = UIViewContentMode.scaleAspectFit
             self.centerScrollContent()
             
-            self.imageView.alpha = 0
+            if let _ = self.placeHolderImage {
+                
+            }else{
+                
+                self.imageView.alpha = 0
+            }
+            
             UIView.animate(withDuration: 0.3, animations: {
                 
                 self.imageView.alpha = 1
@@ -241,13 +266,15 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
             contentsFrame.origin.y = 0.0
         }
         
-        self.imageView.frame = contentsFrame;
+        self.imageView.frame = CGRect(x: contentsFrame.origin.x + imageOffset.x, y: contentsFrame.origin.y + imageOffset.y, width: contentsFrame.width, height: contentsFrame.height)
+        
+        //        self.imageView.frame = contentsFrame;
     }
 }
 
 extension UIImageView{
     
-    func proportionalSizeToFitMaxSize(maxSize: CGSize) -> CGSize{
+    func proportionalSizeToFitMaxSize(maxSize: CGSize, placeHolder: UIImage? = nil) -> CGSize{
         
         var proportionalSize = CGSize.zero
         
@@ -267,6 +294,26 @@ extension UIImageView{
                 
                 width = maxSize.width
                 height = image.size.height/image.size.width * width
+            }
+            
+            proportionalSize = CGSize(width: width, height: height)
+            
+        } else if let placeHolderImage = placeHolder{
+            
+            var width: CGFloat = 0
+            var height: CGFloat = 0
+            
+            let maxSizeAspectRatio = maxSize.width / maxSize.height
+            let imageAspectRatio = placeHolderImage.size.width / placeHolderImage.size.height
+            
+            if maxSizeAspectRatio > imageAspectRatio{
+                
+                height = maxSize.height
+                width = placeHolderImage.size.width/placeHolderImage.size.height * height
+            }else{
+                
+                width = maxSize.width
+                height = placeHolderImage.size.height/placeHolderImage.size.width * width
             }
             
             proportionalSize = CGSize(width: width, height: height)
