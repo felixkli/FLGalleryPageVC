@@ -8,19 +8,16 @@
 import Foundation
 import SDWebImage
 
-class FLGalleryImageVC: UIViewController {
+public class FLGalleryImageVC: UIViewController {
     
-    let imageView = UIImageView()
-    let scrollView = UIScrollView()
+    public let imageView = UIImageView()
+    public var index: Int!
+    public var placeHolderImage: UIImage?
     
-    var index: Int!
-    var imageURL: String!
-    var doubleTap: UITapGestureRecognizer!
-    var imageSize = CGSize.zero
+    private var doubleTap: UITapGestureRecognizer!
+    private var imageSize = CGSize.zero
     
-    var placeHolderImage: UIImage?
-    
-    var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+    private var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
     public var imageOffset = CGPoint(x: 0, y: 0) {
         didSet{
@@ -30,6 +27,9 @@ class FLGalleryImageVC: UIViewController {
         }
     }
     
+    fileprivate let scrollView = UIScrollView()
+    
+    private var imageURL: String!
     
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
@@ -38,11 +38,11 @@ class FLGalleryImageVC: UIViewController {
         self.imageURL = imageURL
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         
         setupScrollView()
@@ -50,7 +50,7 @@ class FLGalleryImageVC: UIViewController {
         retrieveImage()
     }
     
-    override func viewDidLayoutSubviews() {
+    override public func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         scrollView.zoomScale = 0.0;
@@ -67,7 +67,7 @@ class FLGalleryImageVC: UIViewController {
         centerScrollContent()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
+    override public func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         scrollView.zoomScale = 0.0;
@@ -223,7 +223,7 @@ class FLGalleryImageVC: UIViewController {
 
 extension FLGalleryImageVC: UIScrollViewDelegate{
     
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         
         if self.scrollView.maximumZoomScale == self.scrollView.minimumZoomScale{
             
@@ -235,7 +235,7 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
         }
     }
     
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
         
         self.centerScrollContent()
     }
