@@ -8,14 +8,15 @@
 import Foundation
 import SDWebImage
 
-public class FLGalleryImageVC: UIViewController {
+class FLGalleryImageVC: UIViewController {
     
     public let imageView = UIImageView()
-    public var index: Int!
+    public var index: Int?
+    public var imageURL: String?
+    
     public var placeHolderImage: UIImage?
     
     private var doubleTap: UITapGestureRecognizer!
-    private var imageSize = CGSize.zero
     
     private var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
@@ -28,8 +29,6 @@ public class FLGalleryImageVC: UIViewController {
     }
     
     fileprivate let scrollView = UIScrollView()
-    
-    private var imageURL: String!
     
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
@@ -75,8 +74,8 @@ public class FLGalleryImageVC: UIViewController {
     
     func setupScrollView(){
         
-        scrollView.minimumZoomScale=1.0;
-        scrollView.maximumZoomScale=3.0;
+        scrollView.minimumZoomScale = 1.0;
+        scrollView.maximumZoomScale = 3.0;
         scrollView.delegate=self;
         scrollView.clipsToBounds = true;
         scrollView.backgroundColor = UIColor.green
@@ -103,14 +102,17 @@ public class FLGalleryImageVC: UIViewController {
         
         if let _ = placeHolderImage{
             
-            self.imageSize = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size, placeHolder: placeHolderImage)
-            self.imageView.frame.size = self.imageSize
-            self.imageView.contentMode = UIViewContentMode.scaleAspectFit
+            self.imageView.frame.size = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size, placeHolder: placeHolderImage)
             self.centerScrollContent()
             
         }else{
             
             loadingIndicator.startAnimating()
+        }
+        
+        guard let imageURL = imageURL else {
+            
+            return
         }
         
         self.imageView.sd_setImage(with: URL(string: imageURL), placeholderImage: placeHolderImage, options: [.avoidAutoSetImage], progress: nil) { (image, error, cacheType, url) in
@@ -123,9 +125,7 @@ public class FLGalleryImageVC: UIViewController {
             
             self.imageView.image = image
             
-            self.imageSize = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size)
-            self.imageView.frame.size = self.imageSize
-            self.imageView.contentMode = UIViewContentMode.scaleAspectFit
+            self.imageView.frame.size = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size)
             
             self.centerScrollContent()
             
@@ -199,7 +199,8 @@ public class FLGalleryImageVC: UIViewController {
     func handleDoubleTap(sender: UITapGestureRecognizer){
         
         if scrollView.zoomScale >= 2{
-            scrollView.setZoomScale(0.0, animated: true)
+            
+            resetZoom()
         }else{
             
             let pointInView = sender.location(in: self.imageView)
@@ -219,25 +220,10 @@ public class FLGalleryImageVC: UIViewController {
             self.scrollView.zoom(to: rectToZoomTo, animated: true)
         }
     }
-}
-
-extension FLGalleryImageVC: UIScrollViewDelegate{
     
-    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+    func resetZoom(animated: Bool = true) {
         
-        if self.scrollView.maximumZoomScale == self.scrollView.minimumZoomScale{
-            
-            return nil
-            
-        }else{
-            
-            return self.imageView
-        }
-    }
-    
-    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        
-        self.centerScrollContent()
+        scrollView.setZoomScale(0.0, animated: animated)
     }
     
     func centerScrollContent(){
@@ -263,7 +249,27 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
     }
 }
 
-extension UIImageView{
+extension FLGalleryImageVC: UIScrollViewDelegate{
+    
+    public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        
+        if self.scrollView.maximumZoomScale == self.scrollView.minimumZoomScale{
+            
+            return nil
+            
+        }else{
+            
+            return self.imageView
+        }
+    }
+    
+    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        
+        self.centerScrollContent()
+    }
+}
+
+public extension UIImageView{
     
     func proportionalSizeToFitMaxSize(maxSize: CGSize, placeHolder: UIImage? = nil) -> CGSize{
         

@@ -71,8 +71,7 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
-    
-    public init(currentIndex: Int, links: [String]){
+    public init(currentIndex: Int, links: [String], placeholder: UIImage? = nil, startingFrame: CGRect? = nil){
         
         super.init(nibName: nil, bundle: nil)
         
@@ -189,7 +188,14 @@ public class FLGalleryPageVC: UIViewController {
     
     public func imageFrame(forPage page: Int) -> CGRect{
         
-        if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
+        if page == currentPage,
+            let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC{
+            
+            vc.view.layoutIfNeeded()
+            
+            return vc.imageView.frame
+            
+        } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
             
             vc.view.layoutIfNeeded()
             
@@ -201,7 +207,14 @@ public class FLGalleryPageVC: UIViewController {
     
     public func imageView(forPage page: Int) -> UIView{
         
-        if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
+        if page == currentPage,
+            let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC{
+            
+            vc.view.layoutIfNeeded()
+            
+            return vc.imageView
+            
+        } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
             
             vc.view.layoutIfNeeded()
             
@@ -238,8 +251,23 @@ public class FLGalleryPageVC: UIViewController {
     
     func donePressed(){
         
-        self.dismiss(animated: true, completion: nil)
-        self.navigationController?.popViewController(animated: true)
+        UIView.animate(withDuration: 0.3, animations: {
+            
+            if let viewControllers = self.pageVC.viewControllers {
+                for viewController in viewControllers {
+                    
+                    if let imageVC = viewController as? FLGalleryImageVC {
+                        
+                        imageVC.resetZoom(animated: false)
+                    }
+                }
+            }
+            
+        }) { (complete) in
+            
+            self.dismiss(animated: true, completion: nil)
+            self.navigationController?.popViewController(animated: true)
+        }
     }
     
     public override func willMove(toParentViewController parent: UIViewController?) {
@@ -276,8 +304,10 @@ extension FLGalleryPageVC: UIPageViewControllerDataSource{
         
         if let vc = pageViewController.viewControllers!.first as? FLGalleryImageVC{
             
-            if vc.index != currentPage{
-                self.currentPage = vc.index
+            if let index = vc.index,
+                index != currentPage{
+                
+                self.currentPage = index
             }
         }
     }
@@ -290,8 +320,10 @@ extension FLGalleryPageVC: UIPageViewControllerDelegate{
         
         if let vc = pendingViewControllers.first as? FLGalleryImageVC{
             
-            if vc.index != currentPage{
-                self.currentPage = vc.index
+            if let index = vc.index,
+                index != currentPage{
+                
+                self.currentPage = index
             }
         }
     }
