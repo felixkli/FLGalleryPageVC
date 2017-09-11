@@ -97,6 +97,7 @@ class FLGalleryImageVC: UIViewController {
         if doubleTap == nil {
             doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(sender:)))
             doubleTap?.numberOfTapsRequired = 2
+            doubleTap?.numberOfTouchesRequired = 1
             
             imageView.addGestureRecognizer(doubleTap!)
         }
@@ -112,17 +113,12 @@ class FLGalleryImageVC: UIViewController {
         
         if singleTap == nil {
             singleTap = UITapGestureRecognizer(target: target, action: action)
+            singleTap?.numberOfTouchesRequired = 1
             singleTap?.numberOfTapsRequired = 1
             singleTap?.require(toFail: doubleTap!)
             
             imageView.addGestureRecognizer(singleTap!)
         }
-    }
-    
-    func handleSingleTap(sender: UITapGestureRecognizer){
-        
-        
-        print("donePressed")
     }
     
     func retrieveImage(){
@@ -251,7 +247,7 @@ class FLGalleryImageVC: UIViewController {
     func resetZoom(animated: Bool = true) {
         
         scrollView.setZoomScale(0.0, animated: animated)
-        self.centerScrollContent()
+        //        self.centerScrollContent()
     }
     
     func centerScrollContent(){
@@ -295,11 +291,11 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
         
         self.centerScrollContent()
     }
-    
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        
-        self.centerScrollContent()
-    }
+    //
+    //    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+    //
+    //        self.centerScrollContent()
+    //    }
 }
 
 public extension UIImageView{
