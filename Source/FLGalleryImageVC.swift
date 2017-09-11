@@ -16,7 +16,9 @@ class FLGalleryImageVC: UIViewController {
     
     public var placeHolderImage: UIImage?
     
-    private var doubleTap: UITapGestureRecognizer!
+    private var longPress: UILongPressGestureRecognizer?
+    private var doubleTap: UITapGestureRecognizer?
+    private var singleTap: UITapGestureRecognizer?
     
     private var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
@@ -29,6 +31,8 @@ class FLGalleryImageVC: UIViewController {
     }
     
     fileprivate let scrollView = UIScrollView()
+    
+    
     
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
@@ -84,18 +88,41 @@ class FLGalleryImageVC: UIViewController {
     
     func setupImageCropper(){
         
-        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(sender:)))
+        if longPress == nil{
+            longPress = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(sender:)))
+            
+            imageView.addGestureRecognizer(longPress!)
+        }
         
-        doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(sender:)))
-        doubleTap.numberOfTapsRequired = 2
+        if doubleTap == nil {
+            doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(sender:)))
+            doubleTap?.numberOfTapsRequired = 2
+            
+            imageView.addGestureRecognizer(doubleTap!)
+        }
         
         imageView.contentMode = UIViewContentMode.scaleAspectFit
         imageView.isUserInteractionEnabled = true
-        imageView.addGestureRecognizer(longPressRecognizer)
-        imageView.addGestureRecognizer(doubleTap)
         
         scrollView.addSubview(imageView)
         scrollView.addSubview(loadingIndicator)
+    }
+    
+    func setupSingleTap(target: Any?, action: Selector?){
+        
+        if singleTap == nil {
+            singleTap = UITapGestureRecognizer(target: target, action: action)
+            singleTap?.numberOfTapsRequired = 1
+            singleTap?.require(toFail: doubleTap!)
+            
+            imageView.addGestureRecognizer(singleTap!)
+        }
+    }
+    
+    func handleSingleTap(sender: UITapGestureRecognizer){
+        
+        
+        print("donePressed")
     }
     
     func retrieveImage(){
@@ -224,6 +251,7 @@ class FLGalleryImageVC: UIViewController {
     func resetZoom(animated: Bool = true) {
         
         scrollView.setZoomScale(0.0, animated: animated)
+        self.centerScrollContent()
     }
     
     func centerScrollContent(){
@@ -264,6 +292,11 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
     }
     
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        
+        self.centerScrollContent()
+    }
+    
+    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
         
         self.centerScrollContent()
     }

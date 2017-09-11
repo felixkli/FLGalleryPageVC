@@ -54,6 +54,13 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
+    public var tapToClose: Bool = false{
+        didSet{
+            
+            updateGesture()
+        }
+    }
+    
     // Hide bottom bar
     public override var hidesBottomBarWhenPushed: Bool{
         get{
@@ -76,7 +83,7 @@ public class FLGalleryPageVC: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         modalTransitionStyle = .crossDissolve
-        modalPresentationStyle = .overFullScreen
+        modalPresentationStyle = .fullScreen
         
         currentPage = currentIndex
         imageLinks = links
@@ -158,9 +165,7 @@ public class FLGalleryPageVC: UIViewController {
         super.viewDidLayoutSubviews()
         
         exitButton.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad + 10, y: 14, width: exitButtonSize, height: exitButtonSize)
-        //        pageVC.view.frame = CGRect(x: view.bounds.origin.x + imageOffset.x, y: view.bounds.origin.y + imageOffset.y, width: view.bounds.width, height: view.bounds.height)
         pageVC.view.frame = view.bounds
-        
         
         let pageControlWidth = CGFloat(pageControl.numberOfPages) * 20
         pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
@@ -179,11 +184,8 @@ public class FLGalleryPageVC: UIViewController {
         
         updatePageControl()
         
-        DispatchQueue.main.async {
-            
-            let vc = self.viewControllerForIndex(index: self.currentPage)
-            self.pageVC.setViewControllers([vc], direction: .forward, animated: false, completion: nil)
-        }
+        let vc = self.viewControllerForIndex(index: self.currentPage)
+        self.pageVC.setViewControllers([vc], direction: .forward, animated: false, completion: nil)
     }
     
     public func imageFrame(forPage page: Int) -> CGRect{
@@ -246,28 +248,28 @@ public class FLGalleryPageVC: UIViewController {
         galleryImageVC.placeHolderImage = self.placeHolderImage
         galleryImageVC.imageOffset = self.imageOffset
         
+        self.updateGesture()
+        
         return galleryImageVC
     }
     
-    func donePressed(){
+    func updateGesture() {
         
-        UIView.animate(withDuration: 0.3, animations: {
+        if let viewControllers = self.pageVC.viewControllers,
+            tapToClose,
+            viewControllers.count > self.currentPage{
             
-            if let viewControllers = self.pageVC.viewControllers {
-                for viewController in viewControllers {
-                    
-                    if let imageVC = viewController as? FLGalleryImageVC {
-                        
-                        imageVC.resetZoom(animated: false)
-                    }
-                }
+            if let vc = viewControllers[self.currentPage] as? FLGalleryImageVC{
+                
+                vc.setupSingleTap(target: self, action: #selector(FLGalleryPageVC.donePressed(sender:)))
             }
-            
-        }) { (complete) in
-            
-            self.dismiss(animated: true, completion: nil)
-            self.navigationController?.popViewController(animated: true)
         }
+    }
+    
+    public func donePressed(sender: UITapGestureRecognizer? = nil){
+        
+        self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     
     public override func willMove(toParentViewController parent: UIViewController?) {
@@ -326,5 +328,7 @@ extension FLGalleryPageVC: UIPageViewControllerDelegate{
                 self.currentPage = index
             }
         }
+        
+        print("[Transition] self.currentPage: \(self.currentPage)")
     }
 }
