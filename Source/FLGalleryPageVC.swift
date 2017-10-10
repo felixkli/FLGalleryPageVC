@@ -18,6 +18,8 @@ public class FLGalleryPageVC: UIViewController {
     
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
+    var panGestureRecognizer: UIPanGestureRecognizer?
+    
     public var placeHolderImage: UIImage? {
         didSet{
             
@@ -120,6 +122,10 @@ public class FLGalleryPageVC: UIViewController {
         setupPageViewController()
         updatePageControl()
         
+        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(gesturePanned(sender:)))
+        panGestureRecognizer?.maximumNumberOfTouches = 1
+        pageVC.view.addGestureRecognizer(panGestureRecognizer!)
+        
         view.addSubview(pageControl)
         view.addSubview(exitButton)
     }
@@ -165,7 +171,11 @@ public class FLGalleryPageVC: UIViewController {
         super.viewDidLayoutSubviews()
         
         exitButton.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad + 10, y: 14, width: exitButtonSize, height: exitButtonSize)
-        pageVC.view.frame = view.bounds
+        
+        if !self.isBeingDismissed{
+            
+            pageVC.view.frame = view.bounds
+        }
         
         let pageControlWidth = CGFloat(pageControl.numberOfPages) * 20
         pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
@@ -266,6 +276,44 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
+    func gesturePanned(sender: UIGestureRecognizer) {
+        
+        guard let panGesture = sender as? UIPanGestureRecognizer else {
+            
+            return
+        }
+        
+        let translation = panGesture.translation(in: pageVC.view)
+        
+        switch panGesture.state {
+        case .began: break
+        case .changed:
+            
+            self.pageVC.view.frame.origin.y = translation.y
+            if fabs(translation.y) / self.pageVC.view.bounds.height > 0.25 {
+                
+                self.dismiss(animated: true, completion: nil)
+            }
+            
+        case .ended:
+            
+            if fabs(translation.y) / self.pageVC.view.bounds.height > 0.25 {
+                
+                self.dismiss(animated: true, completion: nil)
+                
+            }else{
+                
+                UIView.animate(withDuration: 0.3, animations: {
+                    
+                    self.pageVC.view.frame.origin.y = 0
+                    self.view.alpha = 1
+                })
+            }
+            
+        default:break
+        }
+    }
+    
     public func donePressed(sender: UITapGestureRecognizer? = nil){
         
         self.dismiss(animated: true, completion: nil)
@@ -332,3 +380,4 @@ extension FLGalleryPageVC: UIPageViewControllerDelegate{
         print("[Transition] self.currentPage: \(self.currentPage)")
     }
 }
+
