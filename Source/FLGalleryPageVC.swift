@@ -290,14 +290,10 @@ public class FLGalleryPageVC: UIViewController {
         case .changed:
             
             self.pageVC.view.frame.origin.y = translation.y
-            if fabs(translation.y) / self.pageVC.view.bounds.height > 0.25 {
-                
-                self.dismiss(animated: true, completion: nil)
-            }
             
         case .ended:
             
-            if fabs(translation.y) / self.pageVC.view.bounds.height > 0.25 {
+            if fabs(translation.y) / self.pageVC.view.bounds.height > 0.20 {
                 
                 self.dismiss(animated: true, completion: nil)
                 
