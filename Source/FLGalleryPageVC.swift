@@ -6,19 +6,54 @@
 //
 
 import Foundation
+import SDWebImage
+
+public protocol FLGalleryDelegate: class {
+    
+    func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivityType?, currentIndex: Int)
+}
+
+
+// OPTIONAL
+public extension FLGalleryDelegate {
+    
+    func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivityType?, currentIndex: Int) { }
+}
 
 public class FLGalleryPageVC: UIViewController {
     
-    private let pageControl =  UIPageControl()
-    private let exitButton = UIButton(type: .custom)
-    private let exitButtonSize: CGFloat = 50
-    private let exitButtonPad: CGFloat = 20
-    
-    private var statusBarHidden = false
+    // Controllers
     
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
+    // Gesture
+    
     var panGestureRecognizer: UIPanGestureRecognizer?
+    
+    // Delegate
+    
+    public weak var delegate: FLGalleryDelegate?
+    
+    // Views
+    
+    private let pageControl =  UIPageControl()
+    
+    private let buttonContainer = UIView()
+    
+    private let exitButton = UIButton(type: .custom)
+    private let shareButton = UIButton(type: .custom)
+    
+    // Constants
+    
+    private let exitButtonSize: CGFloat = 50
+    private let exitButtonPad: CGFloat = 10
+    
+    private var statusBarHidden = false
+    
+    // Variables
+    
+    public var itemName: String?
+    public var shareLink: String?
     
     public var placeHolderImage: UIImage? {
         didSet{
@@ -79,6 +114,10 @@ public class FLGalleryPageVC: UIViewController {
             view.layoutIfNeeded()
         }
     }
+    //
+    //    public init() {
+    //        super.init(nibName: nil, bundle: nil)
+    //    }
     
     public init(currentIndex: Int, links: [String], placeholder: UIImage? = nil, startingFrame: CGRect? = nil){
         
@@ -87,6 +126,7 @@ public class FLGalleryPageVC: UIViewController {
         modalTransitionStyle = .crossDissolve
         modalPresentationStyle = .fullScreen
         
+        itemName = title
         currentPage = currentIndex
         imageLinks = links
     }
@@ -108,9 +148,18 @@ public class FLGalleryPageVC: UIViewController {
         
         exitButton.setTitle("", for: .normal)
         exitButton.addTarget(self, action: #selector(FLGalleryPageVC.donePressed), for: .touchUpInside)
-        exitButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
-        exitButton.layer.cornerRadius = exitButtonSize / 2
-        exitButton.backgroundColor = UIColor(white: 1, alpha: 0.2)
+        
+        let shareImage = UIImage(named: "share-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)
+        
+        shareButton.setImage(shareImage, for: .normal)
+        
+        shareButton.setTitle("", for: .normal)
+        shareButton.addTarget(self, action: #selector(FLGalleryPageVC.sharePressed), for: .touchUpInside)
+        
+        //        UIEdgeInsetsMake(<#T##top: CGFloat##CGFloat#>, <#T##left: CGFloat##CGFloat#>, <#T##bottom: CGFloat##CGFloat#>, <#T##right: CGFloat##CGFloat#>)
+        
+        buttonContainer.backgroundColor = UIColor(white: 1, alpha: 0.2)
+        buttonContainer.layer.cornerRadius = exitButtonSize / 2
         
         pageControl.backgroundColor = UIColor(white: 1, alpha: 0.2)
         pageControl.layer.cornerRadius = 10
@@ -127,7 +176,10 @@ public class FLGalleryPageVC: UIViewController {
         pageVC.view.addGestureRecognizer(panGestureRecognizer!)
         
         view.addSubview(pageControl)
-        view.addSubview(exitButton)
+        view.addSubview(buttonContainer)
+        
+        buttonContainer.addSubview(exitButton)
+        buttonContainer.addSubview(shareButton)
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -170,7 +222,28 @@ public class FLGalleryPageVC: UIViewController {
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        exitButton.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad + 10, y: 14, width: exitButtonSize, height: exitButtonSize)
+        if let _ = shareLink {
+            
+            exitButton.imageEdgeInsets = UIEdgeInsetsMake(10, 5, 10, 15)
+            shareButton.imageEdgeInsets = UIEdgeInsetsMake(10, 15, 10, 5)
+            
+            shareButton.alpha = 1
+            
+            buttonContainer.frame = CGRect(x: view.bounds.width - (exitButtonSize) * 2 - exitButtonPad, y: 14, width: exitButtonSize * 2, height: exitButtonSize)
+            exitButton.frame = CGRect(x: exitButtonSize, y: 0, width: exitButtonSize, height: exitButtonSize)
+            shareButton.frame = CGRect(x: 0, y: 0, width: exitButtonSize, height: exitButtonSize)
+            
+        }else {
+            
+            exitButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+            shareButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+            
+            shareButton.alpha = 0
+            
+            buttonContainer.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad, y: 14, width: exitButtonSize, height: exitButtonSize)
+            exitButton.frame = CGRect(x: 0, y: 0, width: exitButtonSize, height: exitButtonSize)
+            shareButton.frame = CGRect.zero
+        }
         
         if !self.isBeingDismissed{
             
@@ -314,6 +387,69 @@ public class FLGalleryPageVC: UIViewController {
         
         self.dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    public func sharePressed(sender: Any? = nil){
+        
+        guard imageLinks.count > 0 else {
+            
+            return
+        }
+        
+        guard let imageURL = URL(string: imageLinks[currentPage])
+            else{
+                
+                return
+        }
+        
+        _ = SDWebImageManager.shared().loadImage(with: imageURL, options: [], progress: nil, completed: { (image, _, error, cacheType, complete, url) in
+            
+            if complete == true {
+                
+                var activityItems:[Any] = [] //[card, PostItemProvider(card: card)]
+                
+                if let shareLink = self.shareLink,
+                    let shareURL = URL(string: shareLink) {
+                    
+                    activityItems.append(shareURL)
+                }
+                
+                
+                if let image = image {
+                    activityItems.append(image)
+                }
+                
+                activityItems.append(self.itemName ?? "")
+                
+                let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+                
+                vc.excludedActivityTypes = [UIActivityType.assignToContact, UIActivityType.print, UIActivityType.saveToCameraRoll, UIActivityType.message, UIActivityType.mail]
+                
+                // For iPad Popover Controller
+                if let popoverController = vc.popoverPresentationController {
+                    
+                    if let sender = sender as? UIBarButtonItem{
+                        
+                        popoverController.barButtonItem = sender
+                        
+                    }else if let sender = sender as? UIGestureRecognizer{
+                        
+                        popoverController.sourceView = sender.view
+                        
+                    }else if let sender = sender as? UIButton{
+                        
+                        popoverController.sourceView = sender
+                    }
+                }
+                
+                self.present(vc, animated: true, completion: nil)
+                
+                vc.completionWithItemsHandler = { (activityType, completed, returnedItems, activityError) in
+                    
+                    self.delegate?.gallery(galleryVC: self, didShareActivity: activityType, currentIndex: self.currentPage)
+                }
+            }
+        })
     }
     
     public override func willMove(toParentViewController parent: UIViewController?) {
