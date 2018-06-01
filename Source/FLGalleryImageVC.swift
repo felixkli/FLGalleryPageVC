@@ -169,7 +169,7 @@ class FLGalleryImageVC: UIViewController {
         }
     }
     
-    func imgsScrlViewLongPressed(sender: UILongPressGestureRecognizer)
+    @objc func imgsScrlViewLongPressed(sender: UILongPressGestureRecognizer)
     {
         if (sender.state == UIGestureRecognizerState.ended) {
             
@@ -198,7 +198,7 @@ class FLGalleryImageVC: UIViewController {
         }
     }
     
-    func image(image: UIImage, didFinishSavingWithError error: NSError?, contextInfo:UnsafeRawPointer) {
+    @objc func image(image: UIImage, didFinishSavingWithError error: NSError?, contextInfo:UnsafeRawPointer) {
         
         if error == nil {
             
@@ -219,7 +219,7 @@ class FLGalleryImageVC: UIViewController {
         }
     }
     
-    func handleDoubleTap(sender: UITapGestureRecognizer){
+    @objc func handleDoubleTap(sender: UITapGestureRecognizer){
         
         if scrollView.zoomScale >= 2{
             

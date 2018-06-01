@@ -98,6 +98,8 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
+    public var customActivities: [UIActivity] = []
+    
     // Hide bottom bar
     public override var hidesBottomBarWhenPushed: Bool{
         get{
@@ -114,10 +116,6 @@ public class FLGalleryPageVC: UIViewController {
             view.layoutIfNeeded()
         }
     }
-    //
-    //    public init() {
-    //        super.init(nibName: nil, bundle: nil)
-    //    }
     
     public init(currentIndex: Int, links: [String], placeholder: UIImage? = nil, startingFrame: CGRect? = nil){
         
@@ -349,7 +347,7 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
-    func gesturePanned(sender: UIGestureRecognizer) {
+    @objc func gesturePanned(sender: UIGestureRecognizer) {
         
         guard let panGesture = sender as? UIPanGestureRecognizer else {
             
@@ -383,13 +381,13 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
-    public func donePressed(sender: UITapGestureRecognizer? = nil){
+    @objc public func donePressed(sender: UITapGestureRecognizer? = nil){
         
         self.dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
     }
     
-    public func sharePressed(sender: Any? = nil){
+    @objc public func sharePressed(sender: Any? = nil){
         
         guard imageLinks.count > 0 else {
             
@@ -421,7 +419,7 @@ public class FLGalleryPageVC: UIViewController {
                 
                 activityItems.append(self.itemName ?? "")
                 
-                let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+                let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: self.customActivities)
                 
                 vc.excludedActivityTypes = [UIActivityType.assignToContact, UIActivityType.print, UIActivityType.saveToCameraRoll, UIActivityType.message, UIActivityType.mail]
                 
