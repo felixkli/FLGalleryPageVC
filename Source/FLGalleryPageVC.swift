@@ -8,6 +8,17 @@
 import Foundation
 import SDWebImage
 
+public protocol FLGalleryDataSource: class {
+    
+    func gallery(galleryVC: FLGalleryPageVC, placeholderImageForIndex index: Int) -> UIImage?
+}
+
+// OPTIONAL
+public extension FLGalleryDataSource {
+    
+    func gallery(galleryVC: FLGalleryPageVC, placeholderImageForIndex index: Int) -> UIImage? { return nil }
+}
+
 public protocol FLGalleryDelegate: class {
     
     func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivityType?, currentIndex: Int)
@@ -33,6 +44,7 @@ public class FLGalleryPageVC: UIViewController {
     // Delegate
     
     public weak var delegate: FLGalleryDelegate?
+    public weak var dataSource: FLGalleryDataSource?
     
     // Views
     
@@ -55,14 +67,6 @@ public class FLGalleryPageVC: UIViewController {
     public var itemName: String?
     public var shareLink: String?
     
-    public var placeHolderImage: UIImage? {
-        didSet{
-            
-            view.setNeedsLayout()
-            view.layoutIfNeeded()
-        }
-    }
-    
     public var backgroundColor: UIColor = UIColor.white{
         didSet{
             
@@ -78,6 +82,8 @@ public class FLGalleryPageVC: UIViewController {
             updatePageControl()
         }
     }
+    
+    public fileprivate(set) var originalPage = 0
     
     public var imageLinks: Array<String> = []{
         didSet{
@@ -262,6 +268,7 @@ public class FLGalleryPageVC: UIViewController {
     public func setCurrentImagePage(page: Int){
         
         currentPage = page
+        originalPage = page
         
         updatePageControl()
         
@@ -326,7 +333,7 @@ public class FLGalleryPageVC: UIViewController {
         
         let galleryImageVC = FLGalleryImageVC(index: index, imageURL: imageLinks[index])
         
-        galleryImageVC.placeHolderImage = self.placeHolderImage
+        galleryImageVC.placeHolderImage = self.dataSource?.gallery(galleryVC: self, placeholderImageForIndex: index)
         galleryImageVC.imageOffset = self.imageOffset
         
         self.updateGesture()
