@@ -20,7 +20,7 @@ class FLGalleryImageVC: UIViewController {
     private var doubleTap: UITapGestureRecognizer?
     private var singleTap: UITapGestureRecognizer?
     
-    private var loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+    private var loadingIndicator = UIActivityIndicatorView(style: .gray)
     
     public var imageOffset = CGPoint(x: 0, y: 0) {
         didSet{
@@ -102,7 +102,7 @@ class FLGalleryImageVC: UIViewController {
             imageView.addGestureRecognizer(doubleTap!)
         }
         
-        imageView.contentMode = UIViewContentMode.scaleAspectFit
+        imageView.contentMode = UIView.ContentMode.scaleAspectFit
         imageView.isUserInteractionEnabled = true
         
         scrollView.addSubview(imageView)
@@ -171,9 +171,9 @@ class FLGalleryImageVC: UIViewController {
     
     @objc func imgsScrlViewLongPressed(sender: UILongPressGestureRecognizer)
     {
-        if (sender.state == UIGestureRecognizerState.ended) {
+        if (sender.state == UIGestureRecognizer.State.ended) {
             
-        } else if (sender.state == UIGestureRecognizerState.began) {
+        } else if (sender.state == UIGestureRecognizer.State.began) {
             
             let imgView: UIImageView = sender.view as! UIImageView
             let saveImgAS = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)

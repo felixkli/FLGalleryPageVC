@@ -21,14 +21,14 @@ public extension FLGalleryDataSource {
 
 public protocol FLGalleryDelegate: class {
     
-    func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivityType?, currentIndex: Int)
+    func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivity.ActivityType?, currentIndex: Int)
 }
 
 
 // OPTIONAL
 public extension FLGalleryDelegate {
     
-    func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivityType?, currentIndex: Int) { }
+    func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivity.ActivityType?, currentIndex: Int) { }
 }
 
 public class FLGalleryPageVC: UIViewController {
@@ -228,8 +228,8 @@ public class FLGalleryPageVC: UIViewController {
         
         if let _ = shareLink {
             
-            exitButton.imageEdgeInsets = UIEdgeInsetsMake(10, 5, 10, 15)
-            shareButton.imageEdgeInsets = UIEdgeInsetsMake(10, 15, 10, 5)
+            exitButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 5, bottom: 10, right: 15)
+            shareButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 15, bottom: 10, right: 5)
             
             shareButton.alpha = 1
             
@@ -239,8 +239,8 @@ public class FLGalleryPageVC: UIViewController {
             
         }else {
             
-            exitButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
-            shareButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+            exitButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 10, bottom: 10, right: 10)
+            shareButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 10, bottom: 10, right: 10)
             
             shareButton.alpha = 0
             
@@ -371,7 +371,7 @@ public class FLGalleryPageVC: UIViewController {
             
         case .ended:
             
-            if fabs(translation.y) / self.pageVC.view.bounds.height > 0.20 {
+            if abs(translation.y) / self.pageVC.view.bounds.height > 0.20 {
                 
                 self.dismiss(animated: true, completion: nil)
                 
@@ -428,7 +428,7 @@ public class FLGalleryPageVC: UIViewController {
                 
                 let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: self.customActivities)
                 
-                vc.excludedActivityTypes = [UIActivityType.assignToContact, UIActivityType.print, UIActivityType.saveToCameraRoll, UIActivityType.message, UIActivityType.mail]
+                vc.excludedActivityTypes = [UIActivity.ActivityType.assignToContact, UIActivity.ActivityType.print, UIActivity.ActivityType.saveToCameraRoll, UIActivity.ActivityType.message, UIActivity.ActivityType.mail]
                 
                 // For iPad Popover Controller
                 if let popoverController = vc.popoverPresentationController {
@@ -457,8 +457,8 @@ public class FLGalleryPageVC: UIViewController {
         })
     }
     
-    public override func willMove(toParentViewController parent: UIViewController?) {
-        super.willMove(toParentViewController: parent)
+    public override func willMove(toParent parent: UIViewController?) {
+        super.willMove(toParent: parent)
         
         self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
