@@ -281,12 +281,14 @@ public class FLGalleryPageVC: UIViewController {
         if page == currentPage,
             let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC{
             
+            vc.view.frame = self.view.frame
             vc.view.layoutIfNeeded()
             
             return vc.imageView.frame
             
         } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
             
+            vc.view.frame = self.view.frame
             vc.view.layoutIfNeeded()
             
             return vc.imageView.frame
@@ -332,7 +334,7 @@ public class FLGalleryPageVC: UIViewController {
     fileprivate func viewControllerForIndex(index: Int) -> UIViewController{
         
         let galleryImageVC = FLGalleryImageVC(index: index, imageURL: imageLinks[index])
-        
+
         galleryImageVC.placeHolderImage = self.dataSource?.gallery(galleryVC: self, placeholderImageForIndex: index)
         galleryImageVC.imageOffset = self.imageOffset
         
