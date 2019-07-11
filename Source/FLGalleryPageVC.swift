@@ -409,7 +409,7 @@ public class FLGalleryPageVC: UIViewController {
                 return
         }
         
-        _ = SDWebImageManager.shared().loadImage(with: imageURL, options: [], progress: nil, completed: { (image, _, error, cacheType, complete, url) in
+        SDWebImageManager.shared().loadImage(with: imageURL, options: [], progress: nil, completed: { (image, _, error, cacheType, complete, url) in
             
             if complete == true {
                 
