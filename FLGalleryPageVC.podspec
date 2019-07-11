@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "FLGalleryPageVC"
-  s.version      = "0.8.5"
+  s.version      = "0.8.6"
   s.summary      = "UIPageViewController made to show gallery with zoom"
   s.homepage     = "https://github.com/felixkli/FLGalleryPageVC"
   s.license      = 'MIT'
@@ -11,5 +11,5 @@ Pod::Spec.new do |s|
   s.source_files = "Source/*.swift"
   s.dependency 'SDWebImage'
   s.resources = 'Resources/Media.xcassets'
-  s.swift_versions = '4.2'
+  s.swift_version = '4.2'
 end
