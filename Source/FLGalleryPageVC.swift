@@ -278,23 +278,31 @@ public class FLGalleryPageVC: UIViewController {
     
     public func imageFrame(forPage page: Int) -> CGRect{
         
+        if self.modalPresentationStyle == .fullScreen {
+            
+            self.view.frame = UIApplication.shared.keyWindow?.bounds ?? self.view.frame
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
+        }
+        
+        var rect = view.bounds
+        
         if page == currentPage,
             let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC{
             
             vc.view.frame = self.view.frame
             vc.view.layoutIfNeeded()
-            
-            return vc.imageView.frame
+            rect = vc.imageView.frame
             
         } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
             
             vc.view.frame = self.view.frame
             vc.view.layoutIfNeeded()
             
-            return vc.imageView.frame
+            rect = vc.imageView.frame
         }
         
-        return view.bounds
+        return rect
     }
     
     public func imageView(forPage page: Int) -> UIView{
@@ -334,7 +342,7 @@ public class FLGalleryPageVC: UIViewController {
     fileprivate func viewControllerForIndex(index: Int) -> UIViewController{
         
         let galleryImageVC = FLGalleryImageVC(index: index, imageURL: imageLinks[index])
-
+        
         galleryImageVC.placeHolderImage = self.dataSource?.gallery(galleryVC: self, placeholderImageForIndex: index)
         galleryImageVC.imageOffset = self.imageOffset
         
