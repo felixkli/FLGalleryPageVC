@@ -128,7 +128,7 @@ public class FLGalleryPageVC: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         modalTransitionStyle = .crossDissolve
-        modalPresentationStyle = .fullScreen
+//        modalPresentationStyle = .fullScreen
         
         itemName = title
         currentPage = currentIndex
@@ -190,16 +190,17 @@ public class FLGalleryPageVC: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationController?.setNavigationBarHidden(true, animated: true)
+        
+        self.statusBarHidden = true
+                
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
     }
     
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        self.statusBarHidden = true
-        
-        UIView.animate(withDuration: 0.3) {
-            self.setNeedsStatusBarAppearanceUpdate()
-        }
     }
     
     public override func viewWillDisappear(_ animated: Bool) {
@@ -527,4 +528,3 @@ extension FLGalleryPageVC: UIPageViewControllerDelegate{
         print("[Transition] self.currentPage: \(self.currentPage)")
     }
 }
-
