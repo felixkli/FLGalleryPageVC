@@ -336,7 +336,7 @@ public class FLGalleryPageVC: UIViewController {
         pageVC.delegate = self
         pageVC.dataSource = self
         
-        view.addSubview(pageVC.view)
+        self.addChild(child: pageVC, to: view)
     }
     
     fileprivate func viewControllerForIndex(index: Int) -> UIViewController{
@@ -525,5 +525,24 @@ extension FLGalleryPageVC: UIPageViewControllerDelegate{
         }
         
         print("[Transition] self.currentPage: \(self.currentPage)")
+    }
+}
+
+fileprivate extension UIViewController {
+    
+    func addChild(child: UIViewController?, to view: UIView? = nil) {
+        
+        guard
+            let child = child,
+            let baseView = (view ?? self.view)
+            else
+        {
+            print("[UIViewController] Unable to add child View Controller")
+            return
+        }
+        
+        addChild(child)
+        baseView.addSubview(child.view)
+        child.didMove(toParent: self)
     }
 }
