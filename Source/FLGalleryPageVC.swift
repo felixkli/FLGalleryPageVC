@@ -336,7 +336,10 @@ public class FLGalleryPageVC: UIViewController {
         pageVC.delegate = self
         pageVC.dataSource = self
         
-        self.addChild(child: pageVC, to: view)
+        
+        // Unable to use addChild, FLGalleryImageVC didlayoutsubview called when being dismissed, sets the image and scrollView to original image size before transition
+        self.view.addSubview(pageVC.view)
+        //        self.addChild(child: pageVC, to: view)
     }
     
     fileprivate func viewControllerForIndex(index: Int) -> UIViewController{
