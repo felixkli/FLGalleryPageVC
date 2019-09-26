@@ -20,7 +20,7 @@ public extension FLGalleryDataSource {
 }
 
 public protocol FLGalleryDelegate: class {
-    
+    func gallery(galleryVC: FLGalleryPageVC, shareButtonPressedFor currentIndex: Int)
     func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivity.ActivityType?, currentIndex: Int)
 }
 
@@ -28,6 +28,7 @@ public protocol FLGalleryDelegate: class {
 // OPTIONAL
 public extension FLGalleryDelegate {
     
+    func gallery(galleryVC: FLGalleryPageVC, shareButtonPressedFor currentIndex: Int) { }
     func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivity.ActivityType?, currentIndex: Int) { }
 }
 
@@ -63,6 +64,8 @@ public class FLGalleryPageVC: UIViewController {
     private var statusBarHidden = false
     
     // Variables
+    
+    public var useCustomShare: Bool = false
     
     public var itemName: String?
     public var shareLink: String?
@@ -420,54 +423,61 @@ public class FLGalleryPageVC: UIViewController {
                 return
         }
         
-        SDWebImage.SDWebImageManager.shared.loadImage(with: imageURL, options: [], progress: nil, completed: { (image, _, error, cacheType, complete, url) in
+        if useCustomShare {
             
-            if complete == true {
+            self.delegate?.gallery(galleryVC: self, shareButtonPressedFor: currentPage)
+            
+        }else{
+            
+            SDWebImage.SDWebImageManager.shared.loadImage(with: imageURL, options: [], progress: nil, completed: { (image, _, error, cacheType, complete, url) in
                 
-                var activityItems:[Any] = [] //[card, PostItemProvider(card: card)]
-                
-                if let shareLink = self.shareLink,
-                    let shareURL = URL(string: shareLink) {
+                if complete == true {
                     
-                    activityItems.append(shareURL)
-                }
-                
-                
-                if let image = image {
-                    activityItems.append(image)
-                }
-                
-                activityItems.append(self.itemName ?? "")
-                
-                let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: self.customActivities)
-                
-                vc.excludedActivityTypes = [UIActivity.ActivityType.assignToContact, UIActivity.ActivityType.print, UIActivity.ActivityType.saveToCameraRoll, UIActivity.ActivityType.message, UIActivity.ActivityType.mail]
-                
-                // For iPad Popover Controller
-                if let popoverController = vc.popoverPresentationController {
+                    var activityItems:[Any] = [] //[card, PostItemProvider(card: card)]
                     
-                    if let sender = sender as? UIBarButtonItem{
+                    if let shareLink = self.shareLink,
+                        let shareURL = URL(string: shareLink) {
                         
-                        popoverController.barButtonItem = sender
+                        activityItems.append(shareURL)
+                    }
+                    
+                    
+                    if let image = image {
+                        activityItems.append(image)
+                    }
+                    
+                    activityItems.append(self.itemName ?? "")
+                    
+                    let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: self.customActivities)
+                    
+                    vc.excludedActivityTypes = [UIActivity.ActivityType.assignToContact, UIActivity.ActivityType.print, UIActivity.ActivityType.saveToCameraRoll, UIActivity.ActivityType.message, UIActivity.ActivityType.mail]
+                    
+                    // For iPad Popover Controller
+                    if let popoverController = vc.popoverPresentationController {
                         
-                    }else if let sender = sender as? UIGestureRecognizer{
+                        if let sender = sender as? UIBarButtonItem{
+                            
+                            popoverController.barButtonItem = sender
+                            
+                        }else if let sender = sender as? UIGestureRecognizer{
+                            
+                            popoverController.sourceView = sender.view
+                            
+                        }else if let sender = sender as? UIButton{
+                            
+                            popoverController.sourceView = sender
+                        }
+                    }
+                    
+                    self.present(vc, animated: true, completion: nil)
+                    
+                    vc.completionWithItemsHandler = { (activityType, completed, returnedItems, activityError) in
                         
-                        popoverController.sourceView = sender.view
-                        
-                    }else if let sender = sender as? UIButton{
-                        
-                        popoverController.sourceView = sender
+                        self.delegate?.gallery(galleryVC: self, didShareActivity: activityType, currentIndex: self.currentPage)
                     }
                 }
-                
-                self.present(vc, animated: true, completion: nil)
-                
-                vc.completionWithItemsHandler = { (activityType, completed, returnedItems, activityError) in
-                    
-                    self.delegate?.gallery(galleryVC: self, didShareActivity: activityType, currentIndex: self.currentPage)
-                }
-            }
-        })
+            })
+        }
     }
     
     public override func willMove(toParent parent: UIViewController?) {
