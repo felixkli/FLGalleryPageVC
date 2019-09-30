@@ -162,15 +162,14 @@ public class FLGalleryPageVC: UIViewController {
         
         shareButton.setTitle("", for: .normal)
         shareButton.addTarget(self, action: #selector(FLGalleryPageVC.sharePressed), for: .touchUpInside)
-        
-        //        UIEdgeInsetsMake(<#T##top: CGFloat##CGFloat#>, <#T##left: CGFloat##CGFloat#>, <#T##bottom: CGFloat##CGFloat#>, <#T##right: CGFloat##CGFloat#>)
-        
+                
         buttonContainer.backgroundColor = UIColor(white: 1, alpha: 0.2)
         buttonContainer.layer.cornerRadius = exitButtonSize / 2
         
         pageControl.backgroundColor = UIColor(white: 1, alpha: 0.2)
         pageControl.layer.cornerRadius = 10
         pageControl.hidesForSinglePage = true
+        pageControl.isUserInteractionEnabled = false
         
         pageControl.pageIndicatorTintColor = UIColor(white: 0.9, alpha: 0.8)
         pageControl.currentPageIndicatorTintColor = UIColor(white: 0.2, alpha: 0.8)
