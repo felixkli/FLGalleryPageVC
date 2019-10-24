@@ -29,8 +29,7 @@ class FLGalleryImageVC: UIViewController {
         }
     }
     
-    fileprivate let scrollView = UIScrollView()
-    
+    private let scrollView = UIScrollView()
     
     
     init(index: Int, imageURL: String){
@@ -77,11 +76,21 @@ class FLGalleryImageVC: UIViewController {
     
     func setupScrollView(){
         
+        if #available(iOS 11.0, *) {
+            
+            scrollView.contentInsetAdjustmentBehavior = .never
+            
+        } else {
+            
+            self.automaticallyAdjustsScrollViewInsets = false
+        }
+        
         scrollView.minimumZoomScale = 1.0;
         scrollView.maximumZoomScale = 3.0;
-        scrollView.delegate=self;
-        scrollView.clipsToBounds = true;
+        scrollView.delegate = self
+        scrollView.clipsToBounds = true
         scrollView.backgroundColor = UIColor.green
+        
         view.addSubview(scrollView)
     }
     
@@ -168,13 +177,13 @@ class FLGalleryImageVC: UIViewController {
         }
     }
     
-    @objc func imgsScrlViewLongPressed(sender: UILongPressGestureRecognizer)
-    {
-        if (sender.state == UIGestureRecognizer.State.ended) {
+    @objc func imgsScrlViewLongPressed(sender: UILongPressGestureRecognizer) {
+        
+        switch sender.state {
+        case .began:
             
-        } else if (sender.state == UIGestureRecognizer.State.began) {
+            guard let imgView: UIImageView = sender.view as? UIImageView else { break }
             
-            let imgView: UIImageView = sender.view as! UIImageView
             let saveImgAS = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
             
             saveImgAS.addAction(UIAlertAction(title: "Save Image", style: .default, handler: { (action) in
@@ -194,28 +203,30 @@ class FLGalleryImageVC: UIViewController {
             }
             
             self.present(saveImgAS, animated: true, completion: nil)
+
+        default: break
         }
     }
     
     @objc func image(image: UIImage, didFinishSavingWithError error: NSError?, contextInfo:UnsafeRawPointer) {
         
-        if error == nil {
-            
-            let ac = UIAlertController(title: "Success!", message: "Image has been saved.", preferredStyle: .alert)
-            present(ac, animated: true, completion: nil)
-            
-            let delayTime = DispatchTime.now() + 1.5
-            DispatchQueue.main.asyncAfter(deadline: delayTime, execute: {
-                
-                ac.dismiss(animated: true, completion: nil)
-            })
-            
-        } else {
+        guard error == nil else {
             
             let ac = UIAlertController(title: "Save error", message: error?.localizedDescription, preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             present(ac, animated: true, completion: nil)
+            
+            return
         }
+        
+        let ac = UIAlertController(title: "Success!", message: "Image has been saved.", preferredStyle: .alert)
+        present(ac, animated: true, completion: nil)
+        
+        let delayTime = DispatchTime.now() + 1.5
+        DispatchQueue.main.asyncAfter(deadline: delayTime, execute: {
+            
+            ac.dismiss(animated: true, completion: nil)
+        })
     }
     
     @objc func handleDoubleTap(sender: UITapGestureRecognizer){
@@ -223,6 +234,7 @@ class FLGalleryImageVC: UIViewController {
         if scrollView.zoomScale >= 2{
             
             resetZoom()
+            
         }else{
             
             let pointInView = sender.location(in: self.imageView)
@@ -246,7 +258,6 @@ class FLGalleryImageVC: UIViewController {
     func resetZoom(animated: Bool = true) {
         
         scrollView.setZoomScale(0.0, animated: animated)
-        //        self.centerScrollContent()
     }
     
     func centerScrollContent(){
@@ -290,11 +301,6 @@ extension FLGalleryImageVC: UIScrollViewDelegate{
         
         self.centerScrollContent()
     }
-    //
-    //    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-    //
-    //        self.centerScrollContent()
-    //    }
 }
 
 public extension UIImageView{
