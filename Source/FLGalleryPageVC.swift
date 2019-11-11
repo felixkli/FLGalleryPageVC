@@ -33,7 +33,7 @@ public extension FLGalleryDelegate {
 }
 
 public class FLGalleryPageVC: UIViewController {
-s
+
     // Controllers
     
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
