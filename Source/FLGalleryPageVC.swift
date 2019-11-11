@@ -40,7 +40,7 @@ public class FLGalleryPageVC: UIViewController {
     
     // Gesture
     
-    var panGestureRecognizer: UIPanGestureRecognizer?
+    private var panGestureRecognizer: UIPanGestureRecognizer?
     
     // Delegate
     
