@@ -33,7 +33,7 @@ public extension FLGalleryDelegate {
 }
 
 public class FLGalleryPageVC: UIViewController {
-    
+s
     // Controllers
     
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
@@ -70,6 +70,8 @@ public class FLGalleryPageVC: UIViewController {
     public var itemName: String?
     public var shareLink: String?
     
+    // Options
+    
     public var backgroundColor: UIColor = UIColor.white{
         didSet{
             
@@ -80,7 +82,7 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
-    public fileprivate(set) var currentPage = 0{
+    public fileprivate(set) var currentPage = 0 {
         didSet{
             updatePageControl()
         }
@@ -88,7 +90,7 @@ public class FLGalleryPageVC: UIViewController {
     
     public fileprivate(set) var originalPage = 0
     
-    public var imageLinks: Array<String> = []{
+    public var imageLinks: [String] = []{
         didSet{
             updatePageControl()
         }
@@ -126,12 +128,13 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
+    public var enableInfiniteScroll: Bool = false
+    
     public init(currentIndex: Int, links: [String], placeholder: UIImage? = nil, startingFrame: CGRect? = nil){
         
         super.init(nibName: nil, bundle: nil)
         
         modalTransitionStyle = .crossDissolve
-        //        modalPresentationStyle = .fullScreen
         
         itemName = title
         currentPage = currentIndex
@@ -379,10 +382,10 @@ public class FLGalleryPageVC: UIViewController {
         let translation = panGesture.translation(in: pageVC.view)
         
         switch panGesture.state {
-        case .began: break
         case .changed:
             
-            self.pageVC.view.frame.origin.y = translation.y
+            // self.pageVC.view.frame.origin.y = translation.y
+            self.pageVC.view.frame.origin = translation
             
         case .ended:
             
@@ -394,32 +397,29 @@ public class FLGalleryPageVC: UIViewController {
                 
                 UIView.animate(withDuration: 0.3, animations: {
                     
-                    self.pageVC.view.frame.origin.y = 0
+//                    self.pageVC.view.frame.origin.y = 0
+                    self.pageVC.view.frame.origin = CGPoint(x: 0, y: 0)
                     self.view.alpha = 1
                 })
             }
-            
-        default:break
+
+        default: break
         }
     }
     
-    @objc public func donePressed(sender: UITapGestureRecognizer? = nil){
+    @objc public func donePressed(sender: UITapGestureRecognizer? = nil) {
         
         self.dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
     }
     
-    @objc public func sharePressed(sender: Any? = nil){
+    @objc public func sharePressed(sender: Any? = nil) {
         
-        guard imageLinks.count > 0 else {
+        guard
+            imageLinks.count > 0,
+            let imageURL = URL(string: imageLinks[currentPage])
             
-            return
-        }
-        
-        guard let imageURL = URL(string: imageLinks[currentPage])
-            else{
-                
-                return
+            else{ return
         }
         
         if useCustomShare {
@@ -491,8 +491,12 @@ extension FLGalleryPageVC: UIPageViewControllerDataSource{
     
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         
-        if (currentPage == 0){
-            return nil
+        
+        if (currentPage == 0) {
+            
+            return enableInfiniteScroll
+                ? self.viewControllerForIndex(index: self.imageLinks.count - 1)
+                : nil
             
         }else{
             return self.viewControllerForIndex(index: currentPage - 1)
@@ -501,9 +505,12 @@ extension FLGalleryPageVC: UIPageViewControllerDataSource{
     
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         
-        if (currentPage == imageLinks.count - 1){
-            return nil
-            
+        if (currentPage == imageLinks.count - 1) {
+                        
+            return enableInfiniteScroll
+                ? self.viewControllerForIndex(index: 0)
+                : nil
+
         }else{
             return self.viewControllerForIndex(index: currentPage + 1)
         }
@@ -511,7 +518,7 @@ extension FLGalleryPageVC: UIPageViewControllerDataSource{
     
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         
-        if let vc = pageViewController.viewControllers!.first as? FLGalleryImageVC{
+        if let vc = pageViewController.viewControllers!.first as? FLGalleryImageVC {
             
             if let index = vc.index,
                 index != currentPage{
@@ -527,7 +534,7 @@ extension FLGalleryPageVC: UIPageViewControllerDelegate{
     
     public func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
         
-        if let vc = pendingViewControllers.first as? FLGalleryImageVC{
+        if let vc = pendingViewControllers.first as? FLGalleryImageVC {
             
             if let index = vc.index,
                 index != currentPage{
@@ -547,8 +554,9 @@ fileprivate extension UIViewController {
         guard
             let child = child,
             let baseView = (view ?? self.view)
-            else
-        {
+            
+            else {
+                
             print("[UIViewController] Unable to add child View Controller")
             return
         }
