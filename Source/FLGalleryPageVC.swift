@@ -33,6 +33,16 @@ public extension FLGalleryDelegate {
 }
 
 public class FLGalleryPageVC: UIViewController {
+    
+    public override var modalPresentationStyle: UIModalPresentationStyle {
+        get{
+            return .fullScreen
+        }
+        set{
+            
+            print("[gallery] modalPresentationStyle will always return fullscreen, cannot set")
+        }
+    }
 
     // Controllers
     
