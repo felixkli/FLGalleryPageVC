@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "FLGalleryPageVC"
-  s.version      = "0.9.9"
+  s.version      = "0.9.10"
   s.summary      = "UIPageViewController made to show gallery with zoom"
   s.homepage     = "https://github.com/felixkli/FLGalleryPageVC"
   s.license      = 'MIT'

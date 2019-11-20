@@ -31,6 +31,10 @@ class FLGalleryImageVC: UIViewController {
     
     private let scrollView = UIScrollView()
     
+    public var scrollViewContentInset: UIEdgeInsets {
+        
+        return scrollView.contentInset
+    }
     
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
@@ -89,7 +93,6 @@ class FLGalleryImageVC: UIViewController {
         scrollView.maximumZoomScale = 3.0;
         scrollView.delegate = self
         scrollView.clipsToBounds = true
-        scrollView.backgroundColor = UIColor.green
         
         view.addSubview(scrollView)
     }
@@ -160,12 +163,13 @@ class FLGalleryImageVC: UIViewController {
             
             self.centerScrollContent()
             
-            self.scrollView.zoomScale = currentScale
-            self.scrollView.contentOffset = currentOffset
-            
             if self.placeHolderImage == nil {
                 
                 self.imageView.alpha = 0
+            }else {
+                
+                self.scrollView.zoomScale = currentScale
+                self.scrollView.contentOffset = currentOffset
             }
             
             UIView.animate(withDuration: 0.3, animations: {
@@ -279,7 +283,7 @@ class FLGalleryImageVC: UIViewController {
             contentsFrame.origin.y = -imageOffset.y
         }
         
-        self.imageView.frame = CGRect(x: contentsFrame.origin.x + imageOffset.x, y: contentsFrame.origin.y + imageOffset.y, width: contentsFrame.width, height: contentsFrame.height)
+        self.scrollView.contentInset = UIEdgeInsets(top: contentsFrame.origin.y, left: contentsFrame.origin.x, bottom: contentsFrame.origin.y, right: contentsFrame.origin.x)
     }
 }
 

@@ -302,19 +302,23 @@ public class FLGalleryPageVC: UIViewController {
         
         var rect = view.bounds
         
+        var galleryPageVC: FLGalleryImageVC?
+        
         if page == currentPage,
             let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC{
             
-            vc.view.frame = self.view.frame
-            vc.view.layoutIfNeeded()
-            rect = vc.imageView.frame
-            
+            galleryPageVC = vc
+                        
         } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
             
+            galleryPageVC = vc
+        }
+        
+        if let vc = galleryPageVC {
+            
             vc.view.frame = self.view.frame
             vc.view.layoutIfNeeded()
-            
-            rect = vc.imageView.frame
+            rect = CGRect(x: vc.scrollViewContentInset.left, y: vc.scrollViewContentInset.top, width: vc.imageView.frame.width, height: vc.imageView.frame.height)
         }
         
         return rect
