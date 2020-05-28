@@ -92,6 +92,16 @@ public class FLGalleryPageVC: UIViewController {
         }
     }
     
+    public var buttonColors: UIColor = UIColor.black {
+        didSet{
+            
+            UIView.animate(withDuration: 0.3) {
+                self.exitButton.tintColor = self.buttonColors
+                self.shareButton.tintColor = self.buttonColors
+            }
+        }
+    }
+    
     public fileprivate(set) var currentPage = 0 {
         didSet{
             updatePageControl()
@@ -162,17 +172,17 @@ public class FLGalleryPageVC: UIViewController {
         
         view.backgroundColor = backgroundColor
         
-        let exitImage = UIImage(named: "close-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)
+        let exitImage = UIImage(named: "close-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
         
         exitButton.setImage(exitImage, for: .normal)
-        
+        shareButton.tintColor = .black
         exitButton.setTitle("", for: .normal)
         exitButton.addTarget(self, action: #selector(FLGalleryPageVC.donePressed), for: .touchUpInside)
         
-        let shareImage = UIImage(named: "share-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)
+        let shareImage = UIImage(named: "share-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
         
         shareButton.setImage(shareImage, for: .normal)
-        
+        shareButton.tintColor = .black
         shareButton.setTitle("", for: .normal)
         shareButton.addTarget(self, action: #selector(FLGalleryPageVC.sharePressed), for: .touchUpInside)
                 
@@ -241,14 +251,21 @@ public class FLGalleryPageVC: UIViewController {
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        var topPadding: CGFloat = 14
+        if #available(iOS 11.0, *) {
+            let window = UIApplication.shared.keyWindow
+            let safeAreaHeight = window?.safeAreaInsets.top ?? 0
+            topPadding += safeAreaHeight
+        }
+        
         if let _ = shareLink {
             
             exitButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 5, bottom: 10, right: 15)
             shareButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 15, bottom: 10, right: 5)
             
             shareButton.alpha = 1
-            
-            buttonContainer.frame = CGRect(x: view.bounds.width - (exitButtonSize) * 2 - exitButtonPad, y: 14, width: exitButtonSize * 2, height: exitButtonSize)
+                        
+            buttonContainer.frame = CGRect(x: view.bounds.width - (exitButtonSize) * 2 - exitButtonPad, y: topPadding, width: exitButtonSize * 2, height: exitButtonSize)
             exitButton.frame = CGRect(x: exitButtonSize, y: 0, width: exitButtonSize, height: exitButtonSize)
             shareButton.frame = CGRect(x: 0, y: 0, width: exitButtonSize, height: exitButtonSize)
             
@@ -259,7 +276,7 @@ public class FLGalleryPageVC: UIViewController {
             
             shareButton.alpha = 0
             
-            buttonContainer.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad, y: 14, width: exitButtonSize, height: exitButtonSize)
+            buttonContainer.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad, y: topPadding, width: exitButtonSize, height: exitButtonSize)
             exitButton.frame = CGRect(x: 0, y: 0, width: exitButtonSize, height: exitButtonSize)
             shareButton.frame = CGRect.zero
         }
