@@ -215,16 +215,10 @@ public class FLGalleryPageVC: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationController?.setNavigationBarHidden(true, animated: true)
-    }
-    
-    public override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
         self.statusBarHidden = true
-        
+
         UIView.animate(withDuration: 0.3) {
             self.setNeedsStatusBarAppearanceUpdate()
-            self.view.layoutIfNeeded()
         }
     }
     
@@ -235,11 +229,14 @@ public class FLGalleryPageVC: UIViewController {
         
         UIView.animate(withDuration: 0.3) {
             self.setNeedsStatusBarAppearanceUpdate()
-            self.view.layoutIfNeeded()
         }
     }
     
     public override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation{
+        if #available(iOS 11.0, *), self.view.safeAreaInsets.top > 0 {
+            
+            return .fade
+        }
         
         return .slide
     }
@@ -254,9 +251,8 @@ public class FLGalleryPageVC: UIViewController {
         super.viewDidLayoutSubviews()
         
         var topPadding: CGFloat = 14
-        if #available(iOS 11.0, *), !self.isBeingDismissed {
-            let window = UIApplication.shared.keyWindow
-            let safeAreaHeight = window?.safeAreaInsets.top ?? 0
+        if #available(iOS 11.0, *) {
+            let safeAreaHeight = self.view.safeAreaInsets.top
             topPadding += safeAreaHeight
         }
         
