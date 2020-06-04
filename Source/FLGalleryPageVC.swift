@@ -175,7 +175,7 @@ public class FLGalleryPageVC: UIViewController {
         let exitImage = UIImage(named: "close-icon", in: Bundle(for: FLGalleryPageVC.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
         
         exitButton.setImage(exitImage, for: .normal)
-        shareButton.tintColor = .black
+        exitButton.tintColor = .black
         exitButton.setTitle("", for: .normal)
         exitButton.addTarget(self, action: #selector(FLGalleryPageVC.donePressed), for: .touchUpInside)
         
@@ -224,6 +224,7 @@ public class FLGalleryPageVC: UIViewController {
         
         UIView.animate(withDuration: 0.3) {
             self.setNeedsStatusBarAppearanceUpdate()
+            self.view.layoutIfNeeded()
         }
     }
     
@@ -234,6 +235,7 @@ public class FLGalleryPageVC: UIViewController {
         
         UIView.animate(withDuration: 0.3) {
             self.setNeedsStatusBarAppearanceUpdate()
+            self.view.layoutIfNeeded()
         }
     }
     
@@ -252,7 +254,7 @@ public class FLGalleryPageVC: UIViewController {
         super.viewDidLayoutSubviews()
         
         var topPadding: CGFloat = 14
-        if #available(iOS 11.0, *) {
+        if #available(iOS 11.0, *), !self.isBeingDismissed {
             let window = UIApplication.shared.keyWindow
             let safeAreaHeight = window?.safeAreaInsets.top ?? 0
             topPadding += safeAreaHeight
@@ -344,13 +346,13 @@ public class FLGalleryPageVC: UIViewController {
     public func imageView(forPage page: Int) -> UIView{
         
         if page == currentPage,
-            let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC{
+            let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC {
             
             vc.view.layoutIfNeeded()
             
             return vc.imageView
             
-        } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
+        } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC {
             
             vc.view.layoutIfNeeded()
             
