@@ -22,8 +22,7 @@ class FLGalleryImageVC: UIViewController {
     private var loadingIndicator = UIActivityIndicatorView(style: .gray)
     
     public var imageOffset = CGPoint(x: 0, y: 0) {
-        didSet{
-            
+        didSet {
             view.setNeedsLayout()
             view.layoutIfNeeded()
         }
@@ -32,13 +31,12 @@ class FLGalleryImageVC: UIViewController {
     private let scrollView = UIScrollView()
     
     public var scrollViewContentInset: UIEdgeInsets {
-        
         return scrollView.contentInset
     }
     
     init(index: Int, imageURL: String){
         super.init(nibName: nil, bundle: nil)
-        
+
         self.index = index
         self.imageURL = imageURL
     }
@@ -81,11 +79,8 @@ class FLGalleryImageVC: UIViewController {
     func setupScrollView(){
         
         if #available(iOS 11.0, *) {
-            
             scrollView.contentInsetAdjustmentBehavior = .never
-            
         } else {
-            
             self.automaticallyAdjustsScrollViewInsets = false
         }
         
@@ -97,11 +92,10 @@ class FLGalleryImageVC: UIViewController {
         view.addSubview(scrollView)
     }
     
-    func setupImageCropper(){
+    func setupImageCropper() {
         
-        if longPress == nil{
+        if longPress == nil {
             longPress = UILongPressGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.imgsScrlViewLongPressed(sender:)))
-            
             imageView.addGestureRecognizer(longPress!)
         }
         
@@ -109,7 +103,6 @@ class FLGalleryImageVC: UIViewController {
             doubleTap = UITapGestureRecognizer(target: self, action: #selector(FLGalleryImageVC.handleDoubleTap(sender:)))
             doubleTap?.numberOfTapsRequired = 2
             doubleTap?.numberOfTouchesRequired = 1
-            
             imageView.addGestureRecognizer(doubleTap!)
         }
         
@@ -120,34 +113,26 @@ class FLGalleryImageVC: UIViewController {
         scrollView.addSubview(loadingIndicator)
     }
     
-    func setupSingleTap(target: Any?, action: Selector?){
+    func setupSingleTap(target: Any?, action: Selector?) {
         
         if singleTap == nil {
             singleTap = UITapGestureRecognizer(target: target, action: action)
             singleTap?.numberOfTouchesRequired = 1
             singleTap?.numberOfTapsRequired = 1
             singleTap?.require(toFail: doubleTap!)
-            
             imageView.addGestureRecognizer(singleTap!)
         }
     }
     
-    func retrieveImage(){
-        
-        if let _ = placeHolderImage{
-            
+    func retrieveImage() {
+        if let _ = placeHolderImage {
             self.imageView.frame.size = self.imageView.proportionalSizeToFitMaxSize(maxSize: self.view.bounds.size, placeHolder: placeHolderImage)
             self.centerScrollContent()
-            
-        }else{
-            
+        }else {
             loadingIndicator.startAnimating()
         }
         
-        guard let imageURL = imageURL else {
-            
-            return
-        }
+        guard let imageURL = imageURL else { return }
         
         self.imageView.sd_setImage(with: URL(string: imageURL), placeholderImage: placeHolderImage, options: [.avoidAutoSetImage], progress: nil) { (image, error, cacheType, url) in
             
@@ -164,16 +149,13 @@ class FLGalleryImageVC: UIViewController {
             self.centerScrollContent()
             
             if self.placeHolderImage == nil {
-                
                 self.imageView.alpha = 0
             }else {
-                
                 self.scrollView.zoomScale = currentScale
                 self.scrollView.contentOffset = currentOffset
             }
             
             UIView.animate(withDuration: 0.3, animations: {
-                
                 self.imageView.alpha = 1
             })
             
@@ -233,14 +215,11 @@ class FLGalleryImageVC: UIViewController {
         })
     }
     
-    @objc func handleDoubleTap(sender: UITapGestureRecognizer){
+    @objc func handleDoubleTap(sender: UITapGestureRecognizer) {
         
-        if scrollView.zoomScale >= 2{
-            
+        if scrollView.zoomScale >= 2 {
             resetZoom()
-            
         }else{
-            
             let pointInView = sender.location(in: self.imageView)
             
             var newZoomScale = self.scrollView.zoomScale * 2
@@ -260,11 +239,10 @@ class FLGalleryImageVC: UIViewController {
     }
     
     func resetZoom(animated: Bool = true) {
-        
         scrollView.setZoomScale(0.0, animated: animated)
     }
     
-    func centerScrollContent(){
+    func centerScrollContent() {
         
         let screenSize = scrollView.bounds.size
         let boundsSize = CGSize(width: screenSize.width, height: screenSize.height )
@@ -290,32 +268,26 @@ class FLGalleryImageVC: UIViewController {
 extension FLGalleryImageVC: UIScrollViewDelegate{
     
     public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        
-        if self.scrollView.maximumZoomScale == self.scrollView.minimumZoomScale{
-            
+        if self.scrollView.maximumZoomScale == self.scrollView.minimumZoomScale {
             return nil
-            
-        }else{
-            
+        }else {
             return self.imageView
         }
     }
     
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        
         self.centerScrollContent()
     }
 }
 
-public extension UIImageView{
+public extension UIImageView {
     
     func proportionalSizeToFitMaxSize(maxSize: CGSize, placeHolder: UIImage? = nil) -> CGSize{
         
         var proportionalSize = CGSize.zero
-        
         let currentImage = self.image ?? placeHolder
         
-        if let image = currentImage{
+        if let image = currentImage {
             
             var width: CGFloat = 0
             var height: CGFloat = 0
@@ -323,12 +295,10 @@ public extension UIImageView{
             let maxSizeAspectRatio = maxSize.width / maxSize.height
             let imageAspectRatio = image.size.width / image.size.height
             
-            if maxSizeAspectRatio > imageAspectRatio{
-                
+            if maxSizeAspectRatio > imageAspectRatio {
                 height = maxSize.height
                 width = image.size.width/image.size.height * height
-            }else{
-                
+            }else {
                 width = maxSize.width
                 height = image.size.height/image.size.width * width
             }
@@ -338,4 +308,8 @@ public extension UIImageView{
         
         return proportionalSize
     }
+}
+
+fileprivate extension TimeInterval {
+    static let `default`: TimeInterval = 0.3
 }

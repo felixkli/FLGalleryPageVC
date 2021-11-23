@@ -8,18 +8,16 @@
 import Foundation
 import SDWebImage
 
-public protocol FLGalleryDataSource: class {
-    
+public protocol FLGalleryDataSource: AnyObject {
     func gallery(galleryVC: FLGalleryPageVC, placeholderImageForIndex index: Int) -> UIImage?
 }
 
 // OPTIONAL
 public extension FLGalleryDataSource {
-    
     func gallery(galleryVC: FLGalleryPageVC, placeholderImageForIndex index: Int) -> UIImage? { return nil }
 }
 
-public protocol FLGalleryDelegate: class {
+public protocol FLGalleryDelegate: AnyObject {
     func gallery(galleryVC: FLGalleryPageVC, shareButtonPressedFor currentIndex: Int)
     func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivity.ActivityType?, currentIndex: Int)
 }
@@ -35,67 +33,53 @@ public extension FLGalleryDelegate {
 public class FLGalleryPageVC: UIViewController {
     
     public override var modalPresentationStyle: UIModalPresentationStyle {
-        get{
-            return .fullScreen
-        }
-        set{
-            
+        get { return .fullScreen }
+        set {
             print("[gallery] modalPresentationStyle will always return fullscreen, cannot set")
         }
     }
 
     // Controllers
-    
     public var pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
     // Gesture
-    
     private var panGestureRecognizer: UIPanGestureRecognizer?
     
     // Delegate
-    
     public weak var delegate: FLGalleryDelegate?
     public weak var dataSource: FLGalleryDataSource?
     
     // Views
-    
     private let pageControl =  UIPageControl()
-    
     private let buttonContainer = UIView()
-    
     private let exitButton = UIButton(type: .custom)
     private let shareButton = UIButton(type: .custom)
     
     // Constants
-    
     private let exitButtonSize: CGFloat = 50
     private let exitButtonPad: CGFloat = 10
     
     private var statusBarHidden = false
     
     // Variables
-    
     public var useCustomShare: Bool = false
     
     public var itemName: String?
     public var shareLink: String?
     
     // Options
-    
-    public var backgroundColor: UIColor = UIColor.white{
-        didSet{
-            
-            UIView.animate(withDuration: 0.3) {
-                
+    public var backgroundColor: UIColor = UIColor.white {
+        didSet {
+            UIView.animate(withDuration: .) {
                 self.view.backgroundColor = self.backgroundColor
             }
         }
     }
     
     public var buttonColors: UIColor = UIColor.black {
-        didSet{
+        didSet {
             
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: .default) {
                 self.exitButton.tintColor = self.buttonColors
                 self.shareButton.tintColor = self.buttonColors
             }
@@ -103,28 +87,27 @@ public class FLGalleryPageVC: UIViewController {
     }
     
     public fileprivate(set) var currentPage = 0 {
-        didSet{
+        didSet {
             updatePageControl()
         }
     }
     
     public fileprivate(set) var originalPage = 0
     
-    public var imageLinks: [String] = []{
-        didSet{
+    public var imageLinks: [String] = [] {
+        didSet {
             updatePageControl()
         }
     }
     
-    public var enablePageControl = false{
-        didSet{
+    public var enablePageControl = false {
+        didSet {
             pageControl.isHidden = !enablePageControl
         }
     }
     
-    public var tapToClose: Bool = false{
-        didSet{
-            
+    public var tapToClose: Bool = false {
+        didSet {
             updateGesture()
         }
     }
@@ -132,17 +115,13 @@ public class FLGalleryPageVC: UIViewController {
     public var customActivities: [UIActivity] = []
     
     // Hide bottom bar
-    public override var hidesBottomBarWhenPushed: Bool{
-        get{
-            
-            return true
-        }
-        set{ }
+    public override var hidesBottomBarWhenPushed: Bool {
+        get { return true }
+        set {}
     }
     
     public var imageOffset = CGPoint(x: 0, y: 0) {
-        didSet{
-            
+        didSet {
             view.setNeedsLayout()
             view.layoutIfNeeded()
         }
@@ -150,7 +129,7 @@ public class FLGalleryPageVC: UIViewController {
     
     public var enableInfiniteScroll: Bool = false
     
-    public init(currentIndex: Int, links: [String], placeholder: UIImage? = nil, startingFrame: CGRect? = nil){
+    public init(currentIndex: Int, links: [String], placeholder: UIImage? = nil, startingFrame: CGRect? = nil) {
         
         super.init(nibName: nil, bundle: nil)
         
@@ -217,7 +196,7 @@ public class FLGalleryPageVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         self.statusBarHidden = true
 
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: .default) {
             self.setNeedsStatusBarAppearanceUpdate()
         }
     }
@@ -227,25 +206,22 @@ public class FLGalleryPageVC: UIViewController {
         
         self.statusBarHidden = false
         
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: .default) {
             self.setNeedsStatusBarAppearanceUpdate()
         }
     }
     
     public override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation{
         if #available(iOS 11.0, *), self.view.safeAreaInsets.top > 0 {
-            
             return .fade
         }
         
         return .slide
     }
     
-    public override var prefersStatusBarHidden: Bool{
-        
+    public override var prefersStatusBarHidden: Bool {
         return statusBarHidden
     }
-    
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -257,7 +233,6 @@ public class FLGalleryPageVC: UIViewController {
         }
         
         if let _ = shareLink {
-            
             exitButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 5, bottom: 10, right: 15)
             shareButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 15, bottom: 10, right: 5)
             
@@ -266,9 +241,7 @@ public class FLGalleryPageVC: UIViewController {
             buttonContainer.frame = CGRect(x: view.bounds.width - (exitButtonSize) * 2 - exitButtonPad, y: topPadding, width: exitButtonSize * 2, height: exitButtonSize)
             exitButton.frame = CGRect(x: exitButtonSize, y: 0, width: exitButtonSize, height: exitButtonSize)
             shareButton.frame = CGRect(x: 0, y: 0, width: exitButtonSize, height: exitButtonSize)
-            
         }else {
-            
             exitButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 10, bottom: 10, right: 10)
             shareButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 10, bottom: 10, right: 10)
             
@@ -279,8 +252,7 @@ public class FLGalleryPageVC: UIViewController {
             shareButton.frame = CGRect.zero
         }
         
-        if !self.isBeingDismissed{
-            
+        if !self.isBeingDismissed {
             pageVC.view.frame = view.bounds
         }
         
@@ -288,15 +260,13 @@ public class FLGalleryPageVC: UIViewController {
         pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
     }
     
-    public func isModal() -> Bool{
-        
+    public func isModal() -> Bool {
         return self.presentingViewController?.presentedViewController == self
             || (self.navigationController != nil && self.navigationController?.presentingViewController?.presentedViewController == self.navigationController)
             || self.tabBarController?.presentingViewController is UITabBarController
     }
     
-    public func setCurrentImagePage(page: Int){
-        
+    public func setCurrentImagePage(page: Int) {
         currentPage = page
         originalPage = page
         
@@ -307,7 +277,6 @@ public class FLGalleryPageVC: UIViewController {
     }
     
     public func imageFrame(forPage page: Int) -> CGRect{
-        
         if self.modalPresentationStyle == .fullScreen {
             
             self.view.frame = UIApplication.shared.keyWindow?.bounds ?? self.view.frame
@@ -320,11 +289,11 @@ public class FLGalleryPageVC: UIViewController {
         var galleryPageVC: FLGalleryImageVC?
         
         if page == currentPage,
-            let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC{
+            let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC {
             
             galleryPageVC = vc
                         
-        } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC{
+        } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC {
             
             galleryPageVC = vc
         }
@@ -339,44 +308,38 @@ public class FLGalleryPageVC: UIViewController {
         return rect
     }
     
-    public func imageView(forPage page: Int) -> UIView{
-        
+    public func imageView(forPage page: Int) -> UIView {
         if page == currentPage,
             let vc = self.pageVC.viewControllers?.first as? FLGalleryImageVC {
             
             vc.view.layoutIfNeeded()
-            
             return vc.imageView
             
         } else if let vc = self.viewControllerForIndex(index: self.currentPage) as? FLGalleryImageVC {
             
             vc.view.layoutIfNeeded()
-            
             return vc.imageView
         }
         
         return self.view
     }
     
-    private func updatePageControl(){
-        
+    private func updatePageControl() {
         pageControl.numberOfPages = imageLinks.count
         pageControl.currentPage = currentPage
     }
     
-    private func setupPageViewController(){
-        
+    private func setupPageViewController() {
         pageVC.view.backgroundColor = UIColor.clear
         pageVC.delegate = self
         pageVC.dataSource = self
-        
         
         // Unable to use addChild, FLGalleryImageVC didlayoutsubview called when being dismissed, sets the image and scrollView to original image size before transition
         self.view.addSubview(pageVC.view)
         //        self.addChild(child: pageVC, to: view)
     }
     
-    fileprivate func viewControllerForIndex(index: Int) -> UIViewController{
+    fileprivate func viewControllerForIndex(index: Int) -> UIViewController {
         
         let galleryImageVC = FLGalleryImageVC(index: index, imageURL: imageLinks[index])
         
@@ -389,61 +352,44 @@ public class FLGalleryPageVC: UIViewController {
     }
     
     func updateGesture() {
-        
-        if let viewControllers = self.pageVC.viewControllers,
-            tapToClose,
-            viewControllers.count > self.currentPage{
-            
-            if let vc = viewControllers[self.currentPage] as? FLGalleryImageVC{
+        guard let viewControllers = self.pageVC.viewControllers,
+              tapToClose,
+              viewControllers.count > self.currentPage
                 
-                vc.setupSingleTap(target: self, action: #selector(FLGalleryPageVC.donePressed(sender:)))
-            }
+        else { return
+        }
+        
+        if let vc = viewControllers[self.currentPage] as? FLGalleryImageVC {
+            vc.setupSingleTap(target: self, action: #selector(FLGalleryPageVC.donePressed(sender:)))
         }
     }
     
     @objc func gesturePanned(sender: UIGestureRecognizer) {
-        
-        guard let panGesture = sender as? UIPanGestureRecognizer else {
-            
-            return
-        }
+        guard let panGesture = sender as? UIPanGestureRecognizer else { return }
         
         let translation = panGesture.translation(in: pageVC.view)
         
         switch panGesture.state {
-        case .changed:
-            
-            // self.pageVC.view.frame.origin.y = translation.y
-            self.pageVC.view.frame.origin = translation
-            
+        case .changed:  self.pageVC.view.frame.origin = translation
         case .ended:
-            
             if abs(translation.y) / self.pageVC.view.bounds.height > 0.20 {
-                
                 self.dismiss(animated: true, completion: nil)
-                
             }else{
-                
-                UIView.animate(withDuration: 0.3, animations: {
-                    
-//                    self.pageVC.view.frame.origin.y = 0
+                UIView.animate(withDuration: .default, animations: {
                     self.pageVC.view.frame.origin = CGPoint(x: 0, y: 0)
                     self.view.alpha = 1
                 })
             }
-
         default: break
         }
     }
     
     @objc public func donePressed(sender: UITapGestureRecognizer? = nil) {
-        
         self.dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
     }
     
     @objc public func sharePressed(sender: Any? = nil) {
-        
         guard
             imageLinks.count > 0,
             let imageURL = URL(string: imageLinks[currentPage])
@@ -452,11 +398,8 @@ public class FLGalleryPageVC: UIViewController {
         }
         
         if useCustomShare {
-            
             self.delegate?.gallery(galleryVC: self, shareButtonPressedFor: currentPage)
-            
         }else{
-            
             SDWebImage.SDWebImageManager.shared.loadImage(with: imageURL, options: [], progress: nil, completed: { (image, _, error, cacheType, complete, url) in
                 
                 if complete == true {
@@ -468,7 +411,6 @@ public class FLGalleryPageVC: UIViewController {
                         
                         activityItems.append(shareURL)
                     }
-                    
                     
                     if let image = image {
                         activityItems.append(image)
@@ -483,24 +425,20 @@ public class FLGalleryPageVC: UIViewController {
                     // For iPad Popover Controller
                     if let popoverController = vc.popoverPresentationController {
                         
-                        if let sender = sender as? UIBarButtonItem{
-                            
+                        switch sender {
+                        case let sender as UIBarButtonItem:
                             popoverController.barButtonItem = sender
-                            
-                        }else if let sender = sender as? UIGestureRecognizer{
-                            
+                        case let sender as UIGestureRecognizer:
                             popoverController.sourceView = sender.view
-                            
-                        }else if let sender = sender as? UIButton{
-                            
+                        case let sender as UIButton:
                             popoverController.sourceView = sender
+                        default: break
                         }
                     }
                     
                     self.present(vc, animated: true, completion: nil)
                     
                     vc.completionWithItemsHandler = { (activityType, completed, returnedItems, activityError) in
-                        
                         self.delegate?.gallery(galleryVC: self, didShareActivity: activityType, currentIndex: self.currentPage)
                     }
                 }
@@ -519,39 +457,29 @@ public class FLGalleryPageVC: UIViewController {
 extension FLGalleryPageVC: UIPageViewControllerDataSource{
     
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        
-        
         if (currentPage == 0) {
-            
             return enableInfiniteScroll
-                ? self.viewControllerForIndex(index: self.imageLinks.count - 1)
-                : nil
-            
+            ? self.viewControllerForIndex(index: self.imageLinks.count - 1)
+            : nil
         }else{
             return self.viewControllerForIndex(index: currentPage - 1)
         }
     }
     
     public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        
         if (currentPage == imageLinks.count - 1) {
-                        
             return enableInfiniteScroll
-                ? self.viewControllerForIndex(index: 0)
-                : nil
-
+            ? self.viewControllerForIndex(index: 0)
+            : nil
         }else{
             return self.viewControllerForIndex(index: currentPage + 1)
         }
     }
     
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        
         if let vc = pageViewController.viewControllers!.first as? FLGalleryImageVC {
-            
             if let index = vc.index,
-                index != currentPage{
-                
+                index != currentPage {
                 self.currentPage = index
             }
         }
@@ -564,10 +492,8 @@ extension FLGalleryPageVC: UIPageViewControllerDelegate{
     public func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
         
         if let vc = pendingViewControllers.first as? FLGalleryImageVC {
-            
             if let index = vc.index,
                 index != currentPage{
-                
                 self.currentPage = index
             }
         }
@@ -583,9 +509,7 @@ fileprivate extension UIViewController {
         guard
             let child = child,
             let baseView = (view ?? self.view)
-            
-            else {
-                
+        else {
             print("[UIViewController] Unable to add child View Controller")
             return
         }
@@ -594,4 +518,8 @@ fileprivate extension UIViewController {
         baseView.addSubview(child.view)
         child.didMove(toParent: self)
     }
+}
+
+fileprivate extension TimeInterval {
+    static let `default`: TimeInterval = 0.3
 }
