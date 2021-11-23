@@ -70,7 +70,7 @@ public class FLGalleryPageVC: UIViewController {
     // Options
     public var backgroundColor: UIColor = UIColor.white {
         didSet {
-            UIView.animate(withDuration: .) {
+            UIView.animate(withDuration: .default) {
                 self.view.backgroundColor = self.backgroundColor
             }
         }
