@@ -36,6 +36,7 @@ public class FLGalleryPageVC: UIViewController {
         get { return .fullScreen }
         set {
             print("[gallery] modalPresentationStyle will always return fullscreen, cannot set")
+            print("[gallery] test")
         }
     }
 
