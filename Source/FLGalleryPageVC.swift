@@ -256,8 +256,8 @@ public class FLGalleryPageVC: UIViewController {
             pageVC.view.frame = view.bounds
         }
         
-        let pageControlWidth = CGFloat(pageControl.numberOfPages) * 20
-        pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
+        let pageControlWidth = min(CGFloat(pageControl.numberOfPages) * 32, self.view.bounds.width)
+        pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2.0, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
     }
     
     public func isModal() -> Bool {
