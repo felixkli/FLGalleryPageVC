@@ -286,7 +286,10 @@ public class FLGalleryPageVC: UIViewController {
     public func imageFrame(forPage page: Int) -> CGRect{
         if self.modalPresentationStyle == .fullScreen {
             
-            self.view.frame = UIApplication.shared.keyWindow?.bounds ?? self.view.frame
+            if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows,
+               let first = window.first {
+                self.view.frame = first.bounds
+            }
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
         }
