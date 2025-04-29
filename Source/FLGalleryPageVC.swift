@@ -36,7 +36,6 @@ public class FLGalleryPageVC: UIViewController {
         get { return .fullScreen }
         set {
             print("[gallery] modalPresentationStyle will always return fullscreen, cannot set")
-            print("[gallery] test")
         }
     }
 
@@ -57,9 +56,12 @@ public class FLGalleryPageVC: UIViewController {
     private let shareButton = UIButton(type: .custom)
     
     // Constants
-    private let exitButtonSize: CGFloat = 50
+    private let exitButtonSize: CGFloat = 28
     private let exitButtonPad: CGFloat = 10
-    
+    private let barButtonSpacing: CGFloat = 15
+    private let barButtonHorizontalPadding: CGFloat = 8
+    private let barButtonVerticalPadding: CGFloat = 8
+    public var pageControlPadding: CGFloat = 16
     private var statusBarHidden = false
     
     // Variables
@@ -96,6 +98,17 @@ public class FLGalleryPageVC: UIViewController {
     public fileprivate(set) var originalPage = 0
     
     public var imageLinks: [String] = [] {
+        didSet {
+            updatePageControl()
+        }
+    }
+    
+    public var pageControlpageIndicatorTintColor = UIColor(white: 0.9, alpha: 0.8) {
+        didSet {
+            updatePageControl()
+        }
+    }
+    public var pageControlCurrentPageIndicatorTintColor = UIColor(white: 0.2, alpha: 0.8) {
         didSet {
             updatePageControl()
         }
@@ -167,15 +180,16 @@ public class FLGalleryPageVC: UIViewController {
         shareButton.addTarget(self, action: #selector(FLGalleryPageVC.sharePressed), for: .touchUpInside)
                 
         buttonContainer.backgroundColor = UIColor(white: 1, alpha: 0.2)
-        buttonContainer.layer.cornerRadius = exitButtonSize / 2
+        buttonContainer.layer.cornerRadius = 5
         
         pageControl.backgroundColor = UIColor(white: 1, alpha: 0.2)
-        pageControl.layer.cornerRadius = 10
+        pageControl.pageIndicatorTintColor = .init(hex: "#F2F1F0")
+        pageControl.currentPageIndicatorTintColor = .black
+        pageControl.layer.cornerRadius = 5
         pageControl.hidesForSinglePage = true
         pageControl.isUserInteractionEnabled = false
-        
-        pageControl.pageIndicatorTintColor = UIColor(white: 0.9, alpha: 0.8)
-        pageControl.currentPageIndicatorTintColor = UIColor(white: 0.2, alpha: 0.8)
+        pageControl.backgroundStyle = .minimal
+        pageControl.allowsContinuousInteraction = false
         
         setupPageViewController()
         updatePageControl()
@@ -227,28 +241,26 @@ public class FLGalleryPageVC: UIViewController {
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        var topPadding: CGFloat = 14
+        var topPadding: CGFloat = 0
         if #available(iOS 11.0, *) {
             let safeAreaHeight = self.view.safeAreaInsets.top
             topPadding += safeAreaHeight
         }
         
         if let _ = shareLink {
-            exitButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 5, bottom: 10, right: 15)
-            shareButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 15, bottom: 10, right: 5)
-            
             shareButton.alpha = 1
                         
-            buttonContainer.frame = CGRect(x: view.bounds.width - (exitButtonSize) * 2 - exitButtonPad, y: topPadding, width: exitButtonSize * 2, height: exitButtonSize)
-            exitButton.frame = CGRect(x: exitButtonSize, y: 0, width: exitButtonSize, height: exitButtonSize)
-            shareButton.frame = CGRect(x: 0, y: 0, width: exitButtonSize, height: exitButtonSize)
-        }else {
-            exitButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 10, bottom: 10, right: 10)
-            shareButton.imageEdgeInsets = UIEdgeInsets.init(top: 10, left: 10, bottom: 10, right: 10)
+            buttonContainer.frame = CGRect(x: view.bounds.width - (exitButtonSize) * 2 - exitButtonPad - barButtonSpacing - barButtonHorizontalPadding * 2,
+                                           y: topPadding,
+                                           width: exitButtonSize * 2 + barButtonSpacing + barButtonHorizontalPadding * 2,
+                                           height: exitButtonSize + barButtonVerticalPadding * 2)
+            exitButton.frame = CGRect(x: exitButtonSize + barButtonSpacing + barButtonHorizontalPadding, y: barButtonVerticalPadding, width: exitButtonSize, height: exitButtonSize)
+            shareButton.frame = CGRect(x: barButtonHorizontalPadding, y: barButtonVerticalPadding, width: exitButtonSize, height: exitButtonSize)
             
+        } else {
             shareButton.alpha = 0
             
-            buttonContainer.frame = CGRect(x: view.bounds.width - exitButtonSize - exitButtonPad, y: topPadding, width: exitButtonSize, height: exitButtonSize)
+            buttonContainer.frame = CGRect(x: view.bounds.width - (exitButtonSize) - exitButtonPad - barButtonSpacing, y: topPadding, width: exitButtonSize + barButtonSpacing, height: exitButtonSize)
             exitButton.frame = CGRect(x: 0, y: 0, width: exitButtonSize, height: exitButtonSize)
             shareButton.frame = CGRect.zero
         }
@@ -257,7 +269,8 @@ public class FLGalleryPageVC: UIViewController {
             pageVC.view.frame = view.bounds
         }
         
-        let pageControlWidth = min(CGFloat(pageControl.numberOfPages) * 32, self.view.bounds.width)
+        pageControl.sizeToFit()
+        let pageControlWidth = pageControl.frame.size.width + (pageControlPadding * 2)
         pageControl.frame = CGRect(x: (view.bounds.width - pageControlWidth) / 2.0, y: view.bounds.height - 50, width: pageControlWidth, height: 20)
     }
     
@@ -280,7 +293,10 @@ public class FLGalleryPageVC: UIViewController {
     public func imageFrame(forPage page: Int) -> CGRect{
         if self.modalPresentationStyle == .fullScreen {
             
-            self.view.frame = UIApplication.shared.keyWindow?.bounds ?? self.view.frame
+            if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows,
+               let first = window.first {
+                self.view.frame = first.bounds
+            }
             self.view.setNeedsLayout()
             self.view.layoutIfNeeded()
         }
@@ -328,6 +344,8 @@ public class FLGalleryPageVC: UIViewController {
     private func updatePageControl() {
         pageControl.numberOfPages = imageLinks.count
         pageControl.currentPage = currentPage
+        pageControl.pageIndicatorTintColor = self.pageControlpageIndicatorTintColor
+        pageControl.currentPageIndicatorTintColor = self.pageControlCurrentPageIndicatorTintColor
     }
     
     private func setupPageViewController() {
@@ -518,6 +536,31 @@ fileprivate extension UIViewController {
         addChild(child)
         baseView.addSubview(child.view)
         child.didMove(toParent: self)
+    }
+}
+
+fileprivate extension UIColor {
+    convenience init(hex: String, alpha: CGFloat = 1) {
+        
+        var hexString = hex
+        if hexString.first == "#" {
+            hexString.removeFirst()
+        }
+        
+        let scanner = Scanner(string: hexString)
+        scanner.currentIndex = scanner.string.startIndex
+        
+        var rgbValue: UInt64 = 0
+        scanner.scanHexInt64(&rgbValue)
+        let r = (rgbValue & 0xff0000) >> 16
+        let g = (rgbValue & 0xff00) >> 8
+        let b = rgbValue & 0xff
+        
+        self.init(
+            red: CGFloat(r) / 0xff,
+            green: CGFloat(g) / 0xff,
+            blue: CGFloat(b) / 0xff, alpha: alpha
+        )
     }
 }
 
