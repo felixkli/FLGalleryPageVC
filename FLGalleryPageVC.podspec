@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
 
   s.name         = "FLGalleryPageVC"
-  s.version      = "0.11.3"
+  s.version      = "0.11.4"
   s.summary      = "UIPageViewController made to show gallery with zoom"
   s.homepage     = "https://github.com/felixkli/FLGalleryPageVC"
   s.license      = 'MIT'
   s.author       = { "Felix Li" => "li.felix162@gmail.com" }
-  s.platform     = :ios, "9.0"
+  s.platform     = :ios, "14.0"
   s.source       = { :git => "https://github.com/felixkli/FLGalleryPageVC.git", :tag => s.version.to_s }
   s.source_files = "Source/*.swift"
   s.dependency 'SDWebImage'

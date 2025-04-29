@@ -19,7 +19,7 @@ class FLGalleryImageVC: UIViewController {
     private var doubleTap: UITapGestureRecognizer?
     private var singleTap: UITapGestureRecognizer?
     
-    private var loadingIndicator = UIActivityIndicatorView(style: .gray)
+    private var loadingIndicator = UIActivityIndicatorView(style: .medium)
     
     public var imageOffset = CGPoint(x: 0, y: 0) {
         didSet {
