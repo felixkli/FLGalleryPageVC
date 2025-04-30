@@ -18,7 +18,7 @@ public extension FLGalleryDataSource {
 }
 
 public protocol FLGalleryDelegate: AnyObject {
-    func gallery(galleryVC: FLGalleryPageVC, shareButtonPressedFor currentIndex: Int)
+    func gallery(galleryVC: FLGalleryPageVC, shareButtonPressedFor currentIndex: Int, sender: AnyObject?)
     func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivity.ActivityType?, currentIndex: Int)
 }
 
@@ -26,7 +26,7 @@ public protocol FLGalleryDelegate: AnyObject {
 // OPTIONAL
 public extension FLGalleryDelegate {
     
-    func gallery(galleryVC: FLGalleryPageVC, shareButtonPressedFor currentIndex: Int) { }
+    func gallery(galleryVC: FLGalleryPageVC, shareButtonPressedFor currentIndex: Int, sender: AnyObject?) { }
     func gallery(galleryVC: FLGalleryPageVC, didShareActivity activityType: UIActivity.ActivityType?, currentIndex: Int) { }
 }
 
@@ -241,12 +241,7 @@ public class FLGalleryPageVC: UIViewController {
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        var topPadding: CGFloat = 0
-        if #available(iOS 11.0, *) {
-            let safeAreaHeight = self.view.safeAreaInsets.top
-            topPadding += safeAreaHeight
-        }
-        
+        var topPadding: CGFloat = max(24, self.view.safeAreaInsets.top)
         if let _ = shareLink {
             shareButton.alpha = 1
                         
@@ -408,7 +403,7 @@ public class FLGalleryPageVC: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    @objc public func sharePressed(sender: Any? = nil) {
+    @objc public func sharePressed(sender: AnyObject? = nil) {
         guard
             imageLinks.count > 0,
             let imageURL = URL(string: imageLinks[currentPage])
@@ -417,7 +412,7 @@ public class FLGalleryPageVC: UIViewController {
         }
         
         if useCustomShare {
-            self.delegate?.gallery(galleryVC: self, shareButtonPressedFor: currentPage)
+            self.delegate?.gallery(galleryVC: self, shareButtonPressedFor: currentPage, sender: sender)
         }else{
             SDWebImage.SDWebImageManager.shared.loadImage(with: imageURL, options: [], progress: nil, completed: { (image, _, error, cacheType, complete, url) in
                 
